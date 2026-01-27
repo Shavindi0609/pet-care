@@ -21,7 +21,7 @@ const LoginScreen = ({ navigation }: any) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = async () => {
+ const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please enter email and password");
       return;
@@ -29,14 +29,17 @@ const LoginScreen = ({ navigation }: any) => {
 
     try {
       const res = await loginUser(email, password);
+      
       dispatch(
         setUser({
           uid: res.user.uid,
           email: res.user.email,
+          // res.user.displayName ලබාගත නොහැකි නම් null ලෙස යවන්න
+          displayName: res.user.displayName || null, 
         })
       );
     } catch (error: any) {
-      Alert.alert("Login Failed", error.message);
+      Alert.alert("Login Failed", "Invalid email or password.");
     }
   };
 
