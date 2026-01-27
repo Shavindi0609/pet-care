@@ -107,7 +107,7 @@ const DashboardScreen = ({ navigation }: any) => {
   };
 
   const shopCategories = [
-    { name: "All", emoji: "…" },
+    { name: "All", emoji: "🐾" },
     { name: "Dog", emoji: "🐶" },
     { name: "Cat", emoji: "🐱" },
     { name: "Bird", emoji: "🐦" },
@@ -195,19 +195,20 @@ const DashboardScreen = ({ navigation }: any) => {
         <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Shop For</Text>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          {shopCategories.map((item) => (
-            <TouchableOpacity key={item.name} style={styles.catItem}>
-              <View style={[styles.catIconBox, item.name === "All" && styles.activeCatBox]}>
-                {item.name === "All" ? (
-                  <Text style={styles.catAllText}>All</Text>
-                ) : (
-                  <Text style={{ fontSize: 32 }}>{item.emoji}</Text>
-                )}
-              </View>
-              <Text style={styles.catLabelText}>{item.name}</Text>
+       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+        {shopCategories.map((item) => (
+            <TouchableOpacity 
+            key={item.name} 
+            style={styles.catItem}
+            // මෙතන item.name එක parameter එකක් විදිහට යවනවා
+            onPress={() => navigation.navigate("Shop", { category: item.name })}
+            >
+            <View style={[styles.catIconBox, item.name === "All" && styles.activeCatBox]}>
+                <Text style={styles.emojiText}>{item.emoji}</Text> 
+            </View>
+            <Text style={styles.catLabelText}>{item.name}</Text>
             </TouchableOpacity>
-          ))}
+        ))}
         </ScrollView>
 
         {/* Pet Services */}
@@ -354,7 +355,13 @@ const styles = StyleSheet.create({
   logoutText: { color: '#FF3B30', fontWeight: '700', fontSize: 15 },
   askFidoBtn: { position: 'absolute', bottom: 117, right: 20, alignItems: 'center' }, // Tab Bar එකට උඩින් ඉන්න bottom වැඩි කළා
   askFidoIconWrap: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#FFFBE6', justifyContent: 'center', alignItems: 'center', elevation: 5 },
-  askFidoText: { fontSize: 12, fontWeight: '700', color: '#AEAEB2', marginTop: 5 }
+  askFidoText: { fontSize: 12, fontWeight: '700', color: '#AEAEB2', marginTop: 5 },
+emojiText: {
+    fontSize: 30,      // Emoji එක පැහැදිලිව පෙනෙන්න size එක
+    textAlign: 'center',
+    color: '#000',     
+    includeFontPadding: false, // Android වල මැදට පෙනෙන්න උදව් වෙනවා
+  },
 });
 
 export default DashboardScreen;

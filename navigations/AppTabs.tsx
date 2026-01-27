@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DashboardScreen from "../app/DashboardScreen";
+import ShopScreen from "@/app/ShopScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -41,15 +42,15 @@ export default function AppTabs() {
           ),
         }}
       />
-      <Tab.Screen 
+        <Tab.Screen 
         name="Shop" 
-        component={DashboardScreen} 
+        component={ShopScreen} // මෙතනට DashboardScreen වෙනුවට ShopScreen දෙන්න
         options={{
-          tabBarIcon: ({ color }) => (
+            tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="cart-outline" color={color} size={28} />
-          ),
+            ),
         }}
-      />
+        />
       <Tab.Screen 
         name="Services" 
         component={DashboardScreen} 
