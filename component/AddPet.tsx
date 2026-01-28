@@ -35,20 +35,21 @@ const pickImage = async () => {
   }
 
   try {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      // 1. මේක 'Images' ලෙසම තබන්න
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, 
-      // 2. Error එක එනවා නම් මෙය false කර බලන්න
-      allowsEditing: false, 
-      quality: 0.5,
-    });
+// කලින් තිබුණේ: mediaTypes: ImagePicker.MediaTypeOptions.Images
+// අලුත් ක්‍රමය:
+const result = await ImagePicker.launchImageLibraryAsync({
+  mediaTypes: ['images'], // මේ විදියට array එකක් ලෙස ලබා දෙන්න
+  allowsEditing: true,
+  aspect: [1, 1],
+  quality: 0.5,
+});
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
+    if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
     }
   } catch (error) {
     console.error("Picker Error:", error);
-    Alert.alert("Error", "Could not pick the image. Try again.");
+    Alert.alert("Error", "Something went wrong while picking the image.");
   }
 };
 

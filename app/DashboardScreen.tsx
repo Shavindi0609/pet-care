@@ -10,14 +10,18 @@ import {
   StatusBar,
   FlatList,
   Image,
+  Alert,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
 import { logout } from "../redux/authSlice";
 import { signOut } from "firebase/auth";
-import { auth } from "../config/firebase";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AddPetModal from '../component/AddPet'; 
+// Firebase imports (ඔයාගේ path එක නිවැරදි දැයි බලන්න)
+import { db, storage, auth } from "../config/firebase"; 
+import { collection, addDoc, serverTimestamp, query, where, onSnapshot } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const { width } = Dimensions.get("window");
 
@@ -49,6 +53,33 @@ const DashboardScreen = ({ navigation }: any) => {
     return () => clearInterval(timer);
   }, [activeIndex]);
 
+  useEffect(() => {
+  if (!auth.currentUser) return;
+
+  // ලොග් වී සිටින පරිශීලකයාට අදාළ pets ලා පමණක් ලබා ගැනීම
+  const q = query(
+    collection(db, "pets"),
+    where("userId", "==", auth.currentUser.uid)
+  );
+
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const petsArray: any[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      petsArray.push({
+        id: doc.id,
+        name: data.petName,
+        image: data.petImage,
+      });
+    });
+    setPets(petsArray); // මෙතැනදී ස්වයංක්‍රීයව UI එක update වේ
+  }, (error) => {
+    console.error("Fetch Error: ", error);
+  });
+
+  return () => unsubscribe(); // Cleanup function
+}, [auth.currentUser]);
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -63,6 +94,63 @@ const DashboardScreen = ({ navigation }: any) => {
     { name: "Bird", emoji: "🐦" }, { name: "Horse", emoji: "🐴" }, { name: "Cow", emoji: "🐮" },
   ];
 
+const handleAddNewPet = async (name: string, imageUri: string | null) => {
+  if (!auth.currentUser) {
+    Alert.alert("Error", "Please login first!");
+    return;
+  }
+
+  try {
+    let finalImageUrl = null;
+
+    if (imageUri) {
+      // 1. Cloudinary සඳහා XHR භාවිතා කර Upload කිරීම (Android සඳහා වඩාත් සුදුසුයි)
+      const data = new FormData();
+      data.append('file', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'pet_image.jpg',
+      } as any);
+      
+      data.append('upload_preset', 'pet_care_upload'); // ඔයා හදපු Preset නම මෙතනට දාන්න
+      data.append('cloud_name', 'dm4qd5n2c');
+
+      // fetch වෙනුවට වඩාත් ස්ථාවර මේ ක්‍රමය පාවිච්චි කරමු
+      const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dm4qd5n2c/image/upload', {
+        method: 'POST',
+        body: data,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const result = await uploadResponse.json();
+
+      if (result.secure_url) {
+        finalImageUrl = result.secure_url;
+      } else {
+        console.error("Cloudinary Response Error:", result);
+        throw new Error(result.error?.message || "Cloudinary upload failed");
+      }
+    }
+
+    // 2. Firestore එකේ දත්ත Save කිරීම
+    await addDoc(collection(db, "pets"), {
+      userId: auth.currentUser.uid,
+      petName: name,
+      petImage: finalImageUrl, 
+      createdAt: serverTimestamp(),
+    });
+
+    Alert.alert("Success", "Pet profile created! ☁️✨");
+    setIsModalVisible(false);
+    setPetName(""); 
+  } catch (error: any) {
+    console.error("Upload/Save Error: ", error);
+    Alert.alert("Error", error.message || "Something went wrong while saving.");
+  }
+};
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
@@ -221,9 +309,7 @@ const DashboardScreen = ({ navigation }: any) => {
         onClose={() => setIsModalVisible(false)} 
         petName={petName} 
         setPetName={setPetName} 
-        onAddPet={(name, image) => {
-            setPets([...pets, { name, image }]); 
-        }}
+        onAddPet={handleAddNewPet} // <--- මෙතනට handleAddNewPet ලබා දෙන්න
       />
 
       {/* Floating Button */}
