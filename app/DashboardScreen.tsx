@@ -94,28 +94,30 @@ const DashboardScreen = ({ navigation }: any) => {
     { name: "Bird", emoji: "🐦" }, { name: "Horse", emoji: "🐴" }, { name: "Cow", emoji: "🐮" },
   ];
 
-const handleAddNewPet = async (name: string, imageUri: string | null) => {
+const handleAddNewPet = async (petData: any) => {
   if (!auth.currentUser) {
     Alert.alert("Error", "Please login first!");
     return;
   }
 
+  // දත්ත වෙන් කර ගැනීම (Destructuring)
+  const { name, type, breed, age, gender, image } = petData;
+
   try {
     let finalImageUrl = null;
 
-    if (imageUri) {
-      // 1. Cloudinary සඳහා XHR භාවිතා කර Upload කිරීම (Android සඳහා වඩාත් සුදුසුයි)
+    if (image) {
+      // Cloudinary Upload Logic
       const data = new FormData();
       data.append('file', {
-        uri: imageUri,
+        uri: image,
         type: 'image/jpeg',
         name: 'pet_image.jpg',
       } as any);
       
-      data.append('upload_preset', 'pet_care_upload'); // ඔයා හදපු Preset නම මෙතනට දාන්න
+      data.append('upload_preset', 'pet_care_upload'); 
       data.append('cloud_name', 'dm4qd5n2c');
 
-      // fetch වෙනුවට වඩාත් ස්ථාවර මේ ක්‍රමය පාවිච්චි කරමු
       const uploadResponse = await fetch('https://api.cloudinary.com/v1_1/dm4qd5n2c/image/upload', {
         method: 'POST',
         body: data,
@@ -126,29 +128,28 @@ const handleAddNewPet = async (name: string, imageUri: string | null) => {
       });
 
       const result = await uploadResponse.json();
-
       if (result.secure_url) {
         finalImageUrl = result.secure_url;
-      } else {
-        console.error("Cloudinary Response Error:", result);
-        throw new Error(result.error?.message || "Cloudinary upload failed");
       }
     }
 
-    // 2. Firestore එකේ දත්ත Save කිරීම
+    // Firestore එකේ අලුත් fields (breed, age, gender) සමඟ save කිරීම
     await addDoc(collection(db, "pets"), {
       userId: auth.currentUser.uid,
       petName: name,
+      petType: type,
+      breed: breed,
+      age: age,
+      gender: gender,
       petImage: finalImageUrl, 
       createdAt: serverTimestamp(),
     });
 
-    Alert.alert("Success", "Pet profile created! ☁️✨");
+    Alert.alert("Success", `${name}'s profile created! 🐾✨`);
     setIsModalVisible(false);
-    setPetName(""); 
   } catch (error: any) {
     console.error("Upload/Save Error: ", error);
-    Alert.alert("Error", error.message || "Something went wrong while saving.");
+    Alert.alert("Error", "Something went wrong while saving.");
   }
 };
   return (
@@ -307,9 +308,7 @@ const handleAddNewPet = async (name: string, imageUri: string | null) => {
       <AddPetModal 
         isVisible={isModalVisible} 
         onClose={() => setIsModalVisible(false)} 
-        petName={petName} 
-        setPetName={setPetName} 
-        onAddPet={handleAddNewPet} // <--- මෙතනට handleAddNewPet ලබා දෙන්න
+        onAddPet={handleAddNewPet} 
       />
 
       {/* Floating Button */}
