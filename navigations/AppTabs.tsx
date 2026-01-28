@@ -2,6 +2,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DashboardScreen from "../app/DashboardScreen";
 import ShopScreen from "@/app/ShopScreen";
+import MyProfileScreen from "@/app/MyProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -71,7 +72,7 @@ export default function AppTabs() {
       />
       <Tab.Screen 
         name="My Profile" 
-        component={DashboardScreen} 
+        component={MyProfileScreen} 
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="paw-outline" color={color} size={28} />
