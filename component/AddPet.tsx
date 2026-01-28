@@ -8,38 +8,62 @@ import {
   TextInput, 
   Image, 
   Alert,
-  ScrollView // අලුතින් එකතු කළා
+  ScrollView 
 } from 'react-native';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from 'expo-image-picker';
 
+// Props Interface එක හරියටම මෙහෙම හදමු
 interface AddPetModalProps {
   isVisible: boolean;
   onClose: () => void;
   petName: string;
   setPetName: (name: string) => void;
+  // Dashboard එකට data යවන අලුත් function එක
+  onAddPet: (name: string, image: string | null) => void; 
 }
 
-const AddPetModal = ({ isVisible, onClose, petName, setPetName }: AddPetModalProps) => {
+const AddPetModal = ({ isVisible, onClose, petName, setPetName, onAddPet }: AddPetModalProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Needed', 'Please allow gallery access to add a pet photo.');
-      return;
-    }
+const pickImage = async () => {
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  
+  if (status !== 'granted') {
+    Alert.alert('Permission Needed', 'Please allow gallery access to add a pet photo.');
+    return;
+  }
 
+  try {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
+      // 1. මේක 'Images' ලෙසම තබන්න
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, 
+      // 2. Error එක එනවා නම් මෙය false කර බලන්න
+      allowsEditing: false, 
+      quality: 0.5,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
       setSelectedImage(result.assets[0].uri);
     }
+  } catch (error) {
+    console.error("Picker Error:", error);
+    Alert.alert("Error", "Could not pick the image. Try again.");
+  }
+};
+
+  // පින්තූරය සහ නම යවන function එක
+  const handleAddPetAction = () => {
+    if (petName.trim() === "") {
+      Alert.alert("Error", "Please enter a pet name");
+      return;
+    }
+    // Dashboard එකේ තියෙන ලැයිස්තුවට එකතු කරනවා
+    onAddPet(petName, selectedImage); 
+    // Data reset කරනවා ඊළඟ වතාවට
+    setSelectedImage(null);
+    setPetName("");
+    onClose();
   };
 
   return (
@@ -56,7 +80,7 @@ const AddPetModal = ({ isVisible, onClose, petName, setPetName }: AddPetModalPro
               </TouchableOpacity>
             </View>
 
-            {/* --- Image Picker (දැන් අනිවාර්යයෙන් පෙනේවි) --- */}
+            {/* Image Picker Section */}
             <View style={styles.imagePickerContainer}>
               <TouchableOpacity style={styles.imageCircle} onPress={pickImage}>
                 {selectedImage ? (
@@ -88,7 +112,8 @@ const AddPetModal = ({ isVisible, onClose, petName, setPetName }: AddPetModalPro
               ))}
             </View>
 
-            <TouchableOpacity style={styles.addPetMainBtn} onPress={onClose}>
+            {/* මෙතනින් තමයි dashboard එකට data යවන්නේ */}
+            <TouchableOpacity style={styles.addPetMainBtn} onPress={handleAddPetAction}>
               <Text style={styles.addPetMainBtnText}>Add Pet Now</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -105,7 +130,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 40, 
     borderTopRightRadius: 40, 
     padding: 25, 
-    maxHeight: '90%', // Screen එකෙන් 90% ක් උස ගන්න පුළුවන්
+    maxHeight: '90%', 
     minHeight: 500
   },
   handle: { width: 40, height: 5, backgroundColor: '#E0E0E0', borderRadius: 2.5, alignSelf: 'center', marginBottom: 15 },

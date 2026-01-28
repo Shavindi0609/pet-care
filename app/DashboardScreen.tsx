@@ -9,8 +9,6 @@ import {
   SafeAreaView,
   StatusBar,
   FlatList,
-  Modal,
-  TextInput,
   Image,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
@@ -19,7 +17,8 @@ import { logout } from "../redux/authSlice";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import AddPetModal from '../component/AddPet'; // ඔයා file එක save කරපු path එක හරියට දෙන්න
+import AddPetModal from '../component/AddPet'; 
+
 const { width } = Dimensions.get("window");
 
 const DashboardScreen = ({ navigation }: any) => {
@@ -29,6 +28,9 @@ const DashboardScreen = ({ navigation }: any) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [petName, setPetName] = useState("");
+  // Pets state එක component එක ඇතුළට ගත්තා
+  const [pets, setPets] = useState<any[]>([]); 
+  
   const flatListRef = useRef<FlatList>(null);
 
   const heroSlides = [
@@ -150,18 +152,44 @@ const DashboardScreen = ({ navigation }: any) => {
           <TouchableOpacity onPress={() => navigation.navigate("Pets")}><Text style={styles.seeAllText}>See All</Text></TouchableOpacity>
         </View>
 
-        {/* --- Pet Card UI directly here --- */}
-        <TouchableOpacity style={styles.petProfileCard} onPress={() => setIsModalVisible(true)} activeOpacity={0.8}>
-          <View style={styles.petCardText}>
-            <Text style={styles.petCardTitle}>Oops! Looks like no pets are added yet</Text>
-            <Text style={styles.petCardSub}>Create a pet profile now</Text>
-          </View>
-          <View style={styles.petCardAction}>
-            <MaterialCommunityIcons name="paw" size={120} color="#FF8A80" style={styles.bgPawIcon} />
-            {/* <Image source={{ uri: 'https://cdn-icons-png.flaticon.com/512/616/616408.png' }} style={styles.petImage} /> */}
-            <View style={styles.plusIconCircle}><MaterialCommunityIcons name="plus" size={20} color="#FFF" /></View>
-          </View>
-        </TouchableOpacity>
+        {/* My Pets Dynamic Section */}
+        {pets.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
+            {pets.map((item, index) => (
+              <TouchableOpacity key={index} style={[styles.petProfileCard, { backgroundColor: '#E3F2FD', marginRight: 15, width: width * 0.7 }]}>
+                <View style={styles.petCardText}>
+                  <Text style={styles.petCardTitle}>{item.name}</Text>
+                  <Text style={styles.petCardSub}>Healthy & Happy ✨</Text>
+                </View>
+                <View style={styles.petCardAction}>
+                   {item.image ? (
+                     <Image source={{ uri: item.image }} style={styles.petImageCircle} />
+                   ) : (
+                     <MaterialCommunityIcons name="dog" size={60} color="#FF8C00" />
+                   )}
+                </View>
+              </TouchableOpacity>
+            ))}
+            {/* එකෙක් හිටියත් තව කෙනෙක්ව add කරන්න පුළුවන් plus card එක */}
+            <TouchableOpacity 
+                style={[styles.petProfileCard, { width: 100, backgroundColor: '#F2F2F7', justifyContent: 'center' }]} 
+                onPress={() => setIsModalVisible(true)}
+            >
+                <MaterialCommunityIcons name="plus" size={40} color="#8E8E93" style={{ alignSelf: 'center' }} />
+            </TouchableOpacity>
+          </ScrollView>
+        ) : (
+          <TouchableOpacity style={styles.petProfileCard} onPress={() => setIsModalVisible(true)} activeOpacity={0.8}>
+            <View style={styles.petCardText}>
+              <Text style={styles.petCardTitle}>Oops! Looks like no pets are added yet</Text>
+              <Text style={styles.petCardSub}>Create a pet profile now</Text>
+            </View>
+            <View style={styles.petCardAction}>
+                <MaterialCommunityIcons name="paw" size={120} color="#FF8A80" style={styles.bgPawIcon} />
+                <View style={styles.plusIconCircle}><MaterialCommunityIcons name="plus" size={20} color="#FFF" /></View>
+            </View>
+          </TouchableOpacity>
+        )}
 
         {/* Other Sections */}
         <View style={styles.linksContainer}>
@@ -187,18 +215,22 @@ const DashboardScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Floating Button */}
-      <TouchableOpacity style={styles.askFidoBtn} activeOpacity={0.8}>
-        <View style={styles.askFidoIconWrap}><MaterialCommunityIcons name="dog-service" size={30} color="#FFB800" /></View>
-        <Text style={styles.askFidoText}>Ask Fido?</Text>
-      </TouchableOpacity>
-      {/* අලුත් AddPetModal එක මෙතනට දාන්න */}
+      {/* අලුත් AddPetModal එක මෙතන තියෙන්නේ */}
       <AddPetModal 
         isVisible={isModalVisible} 
         onClose={() => setIsModalVisible(false)} 
         petName={petName} 
         setPetName={setPetName} 
+        onAddPet={(name, image) => {
+            setPets([...pets, { name, image }]); 
+        }}
       />
+
+      {/* Floating Button */}
+      <TouchableOpacity style={styles.askFidoBtn} activeOpacity={0.8}>
+        <View style={styles.askFidoIconWrap}><MaterialCommunityIcons name="dog-service" size={30} color="#FFB800" /></View>
+        <Text style={styles.askFidoText}>Ask Fido?</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -243,13 +275,12 @@ const styles = StyleSheet.create({
   serviceMainText: { fontSize: 14, fontWeight: "700" },
   serviceSubText: { fontSize: 11, color: "#8E8E93" },
   
-  // --- Pet Card Styles ---
   petProfileCard: { backgroundColor: '#FFE4E6', borderRadius: 28, padding: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', overflow: 'hidden', height: 160, elevation: 2 },
   petCardText: { flex: 1.2, zIndex: 2 },
   petCardTitle: { fontSize: 18, fontWeight: '800', color: '#1C1C1E', lineHeight: 24 },
   petCardSub: { fontSize: 14, color: '#3A3A3C', marginTop: 8, fontWeight: '600' },
   petCardAction: { flex: 1, height: '100%', justifyContent: 'center', alignItems: 'center' },
-  petImage: { width: 90, height: 90, zIndex: 3, position: 'absolute', bottom: -10 },
+  petImageCircle: { width: 80, height: 80, borderRadius: 40, borderWidth: 3, borderColor: '#FFF' },
   plusIconCircle: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#1C1C1E', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: 0, right: 0, zIndex: 4, borderWidth: 2, borderColor: '#FFE4E6' },
   bgPawIcon: { position: 'absolute', right: -20, bottom: -20, opacity: 0.4, transform: [{ rotate: '15deg' }] },
 
@@ -264,16 +295,6 @@ const styles = StyleSheet.create({
   askFidoBtn: { position: "absolute", bottom: 117, right: 20, alignItems: "center" },
   askFidoIconWrap: { width: 60, height: 60, borderRadius: 30, backgroundColor: "#FFFBE6", justifyContent: "center", alignItems: "center", elevation: 5 },
   askFidoText: { fontSize: 12, fontWeight: "700", color: "#AEAEB2", marginTop: 5 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "flex-end" },
-  modalContent: { backgroundColor: "#FFF", borderTopLeftRadius: 40, borderTopRightRadius: 40, padding: 30, minHeight: 400 },
-  modalHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-  modalTitle: { fontSize: 20, fontWeight: "800" },
-  inputLabel: { fontSize: 14, fontWeight: "700", marginTop: 15, marginBottom: 8 },
-  input: { backgroundColor: "#F2F2F7", borderRadius: 15, padding: 15 },
-  petTypeRow: { flexDirection: "row", gap: 10, marginTop: 10 },
-  typeChip: { padding: 10, borderRadius: 10, backgroundColor: "#F8F8F8", borderWidth: 1, borderColor: "#F2F2F7" },
-  addPetMainBtn: { backgroundColor: "#FF8C00", padding: 18, borderRadius: 20, marginTop: 30, alignItems: "center" },
-  addPetMainBtnText: { color: "#FFF", fontWeight: "800" },
 });
 
 export default DashboardScreen;
