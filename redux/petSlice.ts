@@ -25,6 +25,13 @@ const petSlice = createSlice({
     addPet: (state, action: PayloadAction<Pet>) => {
       state.pets.push(action.payload);
     },
+    // update pet
+    updatePet: (state, action: PayloadAction<Pet>) => {
+      const index = state.pets.findIndex((p) => p.id === action.payload.id);
+      if (index !== -1) {
+        state.pets[index] = action.payload;
+      }
+    },
     removePet: (state, action: PayloadAction<string>) => {
       state.pets = state.pets.filter(
         (pet) => pet.id !== action.payload

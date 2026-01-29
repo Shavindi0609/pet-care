@@ -11,6 +11,7 @@ import {
   Alert,
   StatusBar,
   Platform,
+  
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store";
@@ -24,8 +25,11 @@ import {
   onSnapshot,
   doc,
   deleteDoc,
+  updateDoc, // 👈 මේක එකතු කරන්න
+
 } from "firebase/firestore";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import EditPetModal from "../component/EditPetModel"; // 👈 Modal එක import කරන්න
 
 const { width } = Dimensions.get("window");
 
@@ -37,6 +41,14 @@ const MyProfileScreen = ({ navigation }: any) => {
   const user = useSelector((state: RootState) => (state.auth as any)?.user);
   const currentUserName = user?.displayName || auth.currentUser?.displayName || "User";
   const currentUserEmail = user?.email || auth.currentUser?.email || "No Email";
+
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedPet, setSelectedPet] = useState<any>(null);
+
+const handleEditPress = (pet: any) => {
+  setSelectedPet(pet);
+  setIsEditModalVisible(true);
+};
 
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -63,6 +75,25 @@ const MyProfileScreen = ({ navigation }: any) => {
     return () => unsubscribe();
   }, []);
 
+  const handleUpdatePet = async (updatedData: any) => {
+  if (!selectedPet?.id) return;
+
+  try {
+    const petRef = doc(db, "pets", selectedPet.id);
+    await updateDoc(petRef, {
+      petName: updatedData.name,
+      petType: updatedData.type,
+      breed: updatedData.breed,
+      age: updatedData.age,
+      gender: updatedData.gender,
+    });
+
+    Alert.alert("Success", "Pet profile updated! 🐾");
+    setIsEditModalVisible(false); // Modal එක වහන්න
+  } catch (error) {
+    Alert.alert("Error", "Could not update pet details.");
+  }
+};
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
@@ -167,12 +198,12 @@ const MyProfileScreen = ({ navigation }: any) => {
         </View>
 
         <View style={styles.cardActions}>
-          <TouchableOpacity 
-            style={styles.editBtn}
-            onPress={() => Alert.alert("Edit", "Edit feature coming soon!")}
-          >
-            <MaterialCommunityIcons name="pencil" size={14} color="#FF8C00" />
-          </TouchableOpacity>
+        <TouchableOpacity 
+        style={styles.editBtn}
+        onPress={() => handleEditPress(item)} // 👈 පරණ Alert එක වෙනුවට මේක දාන්න
+        >
+        <MaterialCommunityIcons name="pencil" size={14} color="#FF8C00" />
+        </TouchableOpacity>
           <TouchableOpacity
             style={styles.deleteBtn}
             onPress={() => handleDeletePet(item.id, item.petName || item.name)}
@@ -221,6 +252,13 @@ const MyProfileScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
         }
+      />
+      {/* ... FlatList එකට පහළින් ... */}
+      <EditPetModal 
+        isVisible={isEditModalVisible} 
+        onClose={() => setIsEditModalVisible(false)} 
+        onUpdate={handleUpdatePet} 
+        petData={selectedPet} 
       />
     </SafeAreaView>
   );
