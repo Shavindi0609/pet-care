@@ -142,6 +142,13 @@ const handleEditPress = (pet: any) => {
         </Text>
       </View>
 
+    <TouchableOpacity 
+        style={styles.editProfileBtn} 
+        onPress={() => navigation.navigate("ProfileEdit")}
+        >
+        <Text style={styles.editProfileText}>Edit Profile</Text>
+    </TouchableOpacity>
+
       <Text style={styles.userNameText}>{currentUserName}</Text>
       <Text style={styles.userEmailText}>{currentUserEmail}</Text>
 
@@ -157,7 +164,9 @@ const handleEditPress = (pet: any) => {
         <Text style={styles.sectionTitle}>My Pet Family</Text>
         <Text style={styles.petCountBadge}>{pets.length} Registered</Text>
       </View>
+
     </View>
+
   );
 
   const renderPetItem = ({ item }: { item: any }) => (
@@ -346,7 +355,22 @@ const styles = StyleSheet.create({
   emptyContainer: { alignItems: "center", marginTop: 50, paddingHorizontal: 40 },
   emptyText: { fontSize: 16, color: "#AEAEB2", marginTop: 15, fontWeight: "600", textAlign: "center" },
   addNowBtn: { marginTop: 20, backgroundColor: "#FF8C00", paddingHorizontal: 25, paddingVertical: 12, borderRadius: 15 },
-  addNowText: { color: "#FFF", fontWeight: "700" }
+  addNowText: { color: "#FFF", fontWeight: "700" },
+
+  // Styles වලට මේක එකතු කරන්න
+editProfileBtn: {
+  marginTop: 10,
+  paddingVertical: 8,
+  paddingHorizontal: 15,
+  borderRadius: 20,
+  borderWidth: 1,
+  borderColor: "#E5E5EA"
+},
+editProfileText: {
+  fontSize: 13,
+  color: "#8E8E93",
+  fontWeight: "600"
+}
 });
 
 export default MyProfileScreen;

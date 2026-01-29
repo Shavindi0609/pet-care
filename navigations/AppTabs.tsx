@@ -2,7 +2,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DashboardScreen from "../app/DashboardScreen";
 import ShopScreen from "@/app/ShopScreen";
-import MyProfileScreen from "@/app/MyProfileScreen";
+// import MyProfileScreen from "@/app/MyProfileScreen";
+import ProfileStack from "./ProfileStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -72,7 +73,7 @@ export default function AppTabs() {
       />
       <Tab.Screen 
         name="My Profile" 
-        component={MyProfileScreen} 
+        component={ProfileStack} // 👈 මෙතනට ProfileStack එක දෙන්න
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="paw-outline" color={color} size={28} />
