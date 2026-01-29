@@ -153,44 +153,69 @@ const MyProfileScreen = ({ navigation }: any) => {
     </View>
   );
 
-  const renderPetItem = ({ item }: { item: any }) => (
-    <View style={styles.petCard}>
-      <View style={styles.imageContainer}>
-        {item.petImage ? (
-          <Image source={{ uri: item.petImage }} style={styles.petImage} />
-        ) : (
-          <View style={styles.placeholderImg}>
-            <MaterialCommunityIcons name="paw" size={40} color="#DDD" />
-          </View>
-        )}
-        <View style={styles.typeBadge}>
-          <Text style={styles.typeBadgeText}>{item.petType?.split(" ")[0] || "🐾"}</Text>
+ const renderPetItem = ({ item }: { item: any }) => (
+  <TouchableOpacity 
+    activeOpacity={0.9}
+    style={styles.petCard}
+    // මෙතනින් තමයි අදාළ pet ගේ නම සහ ID එක අලුත් screen එකට යවන්නේ
+    onPress={() => navigation.navigate("PetMedicalRecords", { 
+      petId: item.id, 
+      petName: item.petName || item.name 
+    })}
+  >
+    <View style={styles.imageContainer}>
+      {item.petImage ? (
+        <Image source={{ uri: item.petImage }} style={styles.petImage} />
+      ) : (
+        <View style={styles.placeholderImg}>
+          <MaterialCommunityIcons name="paw" size={40} color="#DDD" />
         </View>
-      </View>
-      <View style={styles.petDetails}>
-        <View style={styles.nameRow}>
-          <Text style={styles.petName} numberOfLines={1}>{item.petName || item.name}</Text>
-          <MaterialCommunityIcons
-            name={item.gender === "Male" ? "gender-male" : "gender-female"}
-            size={16}
-            color={item.gender === "Male" ? "#2196F3" : "#F06292"}
-          />
-        </View>
-        <Text style={styles.breedText} numberOfLines={1}>{item.breed || "Pure Breed"}</Text>
-        <View style={styles.ageTag}>
-          <Text style={styles.ageText}>{item.age || "0"} Years Old</Text>
-        </View>
-        <View style={styles.cardActions}>
-          <TouchableOpacity style={styles.editBtn} onPress={() => handleEditPress(item)}>
-            <MaterialCommunityIcons name="pencil" size={16} color="#FF8C00" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeletePet(item.id, item.petName || item.name)}>
-            <MaterialCommunityIcons name="trash-can-outline" size={16} color="#FF3B30" />
-          </TouchableOpacity>
-        </View>
+      )}
+      <View style={styles.typeBadge}>
+        <Text style={styles.typeBadgeText}>{item.petType?.split(" ")[0] || "🐾"}</Text>
       </View>
     </View>
-  );
+
+    <View style={styles.petDetails}>
+      <View style={styles.nameRow}>
+        <Text style={styles.petName} numberOfLines={1}>{item.petName || item.name}</Text>
+        <MaterialCommunityIcons
+          name={item.gender === "Male" ? "gender-male" : "gender-female"}
+          size={16}
+          color={item.gender === "Male" ? "#2196F3" : "#F06292"}
+        />
+      </View>
+      
+      <Text style={styles.breedText} numberOfLines={1}>{item.breed || "Pure Breed"}</Text>
+      
+      <View style={styles.ageTag}>
+        <Text style={styles.ageText}>{item.age || "0"} Years Old</Text>
+      </View>
+
+      <View style={styles.cardActions}>
+        <TouchableOpacity 
+          style={styles.editBtn} 
+          onPress={(e) => {
+            e.stopPropagation(); // Card එක click වීම වැළැක්වීමට
+            handleEditPress(item);
+          }}
+        >
+          <MaterialCommunityIcons name="pencil" size={16} color="#FF8C00" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.deleteBtn} 
+          onPress={(e) => {
+            e.stopPropagation(); // Card එක click වීම වැළැක්වීමට
+            handleDeletePet(item.id, item.petName || item.name);
+          }}
+        >
+          <MaterialCommunityIcons name="trash-can-outline" size={16} color="#FF3B30" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
 
   return (
     <SafeAreaView style={styles.container}>
