@@ -6,6 +6,9 @@ export interface MedicalRecord {
   date: string;
   type: string; // Vaccines, Medicine, Vitamins
   status: string;
+  clinicName?: string;    // 👈 අලුතින්
+  doctorName?: string;    // 👈 අලුතින්
+  nextVisitDate?: string; // 👈 අලුතින්
 }
 
 interface MedicalState {
