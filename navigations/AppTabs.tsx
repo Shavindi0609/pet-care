@@ -4,6 +4,7 @@ import DashboardScreen from "../app/DashboardScreen";
 import ShopScreen from "@/app/ShopScreen";
 // import MyProfileScreen from "@/app/MyProfileScreen";
 import ProfileStack from "./ProfileStack";
+import ShopStack from "./ShopStack"; 
 
 const Tab = createBottomTabNavigator();
 
@@ -45,13 +46,13 @@ export default function AppTabs() {
         }}
       />
         <Tab.Screen 
-        name="Shop" 
-        component={ShopScreen} // මෙතනට DashboardScreen වෙනුවට ShopScreen දෙන්න
-        options={{
+          name="Shop" 
+          component={ShopStack} 
+          options={{
             tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="cart-outline" color={color} size={28} />
+              <MaterialCommunityIcons name="cart-outline" color={color} size={28} />
             ),
-        }}
+          }}
         />
       <Tab.Screen 
         name="Services" 
