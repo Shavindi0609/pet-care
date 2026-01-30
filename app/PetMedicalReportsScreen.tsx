@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
-  SafeAreaView, Modal, TextInput, Alert, ActivityIndicator,
+  Modal, TextInput, Alert, ActivityIndicator,
   Platform, KeyboardAvoidingView, ScrollView
 } from "react-native";
+// SafeAreaView සඳහා නිවැරදි library එක පාවිච්චි කිරීම (Warning එක නැති කිරීමට)
+import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { db } from "../config/firebase";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
@@ -12,10 +14,11 @@ import {
   updateMedicalRecordInFirestore, 
   deleteMedicalRecordFromFirestore 
 } from "../services/medicalService";
+import { requestNotificationPermissions, scheduleMedicalReminder } from "../services/notificationService";
 
 const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
   const { petId, petName } = route.params;
-  const [activeTab, setActiveTab] = useState("Vaccines");
+  const [activeTab, setActiveTab] = useState("VET Visits");
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,8 +32,11 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
   const [clinicName, setClinicName] = useState("");
   const [nextVisit, setNextVisit] = useState("");
 
-  // 1. Fetch Records Real-time
+  // 1. Permission ලබා ගැනීම සහ Fetch Records
   useEffect(() => {
+    // Notification permission ඉල්ලීම
+    requestNotificationPermissions();
+
     const q = query(
       collection(db, "pets", petId, "medical_records"), 
       orderBy("createdAt", "desc")
@@ -61,10 +67,9 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
         date, 
         type: activeTab, 
         status: "Completed",
-        // VET Visits නම් විතරක් මේ දත්ත එකතු කරන්න
         ...(activeTab === "VET Visits" && { 
             clinicName: clinicName || "N/A", 
-            nextVisitDate: nextVisit || "Not set" 
+            nextVisitDate: nextVisit || "" 
         })
       };
 
@@ -73,7 +78,26 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
         Alert.alert("Updated", "Record updated successfully! ✨");
       } else {
         await addMedicalRecordInFirestore(petId, data);
-        Alert.alert("Success", "New record added! 🐾");
+
+        // --- NOTIFICATION LOGIC ---
+        // ප්‍රධාන දිනය සඳහා Reminder එකක් දමමු
+        await scheduleMedicalReminder(
+            `${activeTab}: ${title}`, 
+            date, 
+            petName
+        );
+
+        // VET Visit එකකදී ඊළඟ දිනයක් තිබේ නම් ඒ සඳහාත් Reminder එකක් දමමු
+        if (activeTab === "VET Visits" && nextVisit) {
+            await scheduleMedicalReminder(
+                `Follow-up: ${title}`, 
+                nextVisit, 
+                petName
+            );
+        }
+        // ---------------------------
+
+        Alert.alert("Success", "New record added & Reminder set! 🐾");
       }
       closeModal();
     } catch (error) {
@@ -149,7 +173,6 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
         {renderTabButton("VET Visits", "doctor")}
         {renderTabButton("Vaccines", "needle")}
         {renderTabButton("Medicine", "pill")}
-       
       </View>
 
       {loading ? (
@@ -214,7 +237,7 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
             <ScrollView showsVerticalScrollIndicator={false}>
                 <Text style={styles.inputLabel}>{activeTab === "VET Visits" ? "Reason for visit" : "Record Title"}</Text>
                 <TextInput 
-                placeholder="e.g. Annual Checkup / Parvo Vaccine" 
+                placeholder="e.g. Annual Checkup" 
                 style={styles.input} 
                 value={title}
                 onChangeText={setTitle}
@@ -238,9 +261,9 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
                     onChangeText={setClinicName}
                     />
 
-                    <Text style={styles.inputLabel}>Next Visit Reminder (Optional)</Text>
+                    <Text style={styles.inputLabel}>Next Visit Date (YYYY-MM-DD)</Text>
                     <TextInput 
-                    placeholder="YYYY-MM-DD" 
+                    placeholder="2024-12-30" 
                     style={styles.input} 
                     value={nextVisit}
                     onChangeText={setNextVisit}
@@ -259,65 +282,62 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
   );
 };
 
+// ... Styles (Styles කලින් විදිහමයි)
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FBFCFF" },
-  header: { 
-    flexDirection: "row", 
-    justifyContent: "space-between", 
-    alignItems: "center", 
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 40 : 10,
-    paddingBottom: 20,
-    backgroundColor: '#FFF'
-  },
-  headerTitle: { fontSize: 20, fontWeight: "800", color: "#1C1C1E" },
-  backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F2F2F7', justifyContent: 'center', alignItems: 'center' },
-  addBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#FF8C00', justifyContent: 'center', alignItems: 'center', elevation: 3 },
+    container: { flex: 1, backgroundColor: "#FBFCFF" },
+    header: { 
+      flexDirection: "row", 
+      justifyContent: "space-between", 
+      alignItems: "center", 
+      paddingHorizontal: 20,
+      paddingTop: 10,
+      paddingBottom: 20,
+      backgroundColor: '#FFF'
+    },
+    headerTitle: { fontSize: 20, fontWeight: "800", color: "#1C1C1E" },
+    backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F2F2F7', justifyContent: 'center', alignItems: 'center' },
+    addBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#FF8C00', justifyContent: 'center', alignItems: 'center', elevation: 3 },
+    
+    tabContainer: { flexDirection: "row", paddingHorizontal: 15, marginVertical: 15 },
+    tabButton: { flex: 1, alignItems: "center", paddingVertical: 12, backgroundColor: "#F2F2F7", borderRadius: 16, marginHorizontal: 4 },
+    activeTab: { backgroundColor: "#FFF5E6", borderWidth: 1, borderColor: "#FF8C00" },
+    tabText: { fontSize: 11, color: "#8E8E93", marginTop: 4, fontWeight: '600' },
+    activeTabText: { color: "#FF8C00", fontWeight: "700" },
   
-  tabContainer: { flexDirection: "row", paddingHorizontal: 15, marginVertical: 15 },
-  tabButton: { flex: 1, alignItems: "center", paddingVertical: 12, backgroundColor: "#F2F2F7", borderRadius: 16, marginHorizontal: 4 },
-  activeTab: { backgroundColor: "#FFF5E6", borderWidth: 1, borderColor: "#FF8C00" },
-  tabText: { fontSize: 11, color: "#8E8E93", marginTop: 4, fontWeight: '600' },
-  activeTabText: { color: "#FF8C00", fontWeight: "700" },
-
-  listPadding: { paddingHorizontal: 20, paddingBottom: 100 },
-  recordCard: { 
-    flexDirection: "row", 
-    backgroundColor: "#FFF", 
-    padding: 16, 
-    borderRadius: 20, 
-    marginBottom: 12, 
-    borderWidth: 1, 
-    borderColor: "#F2F2F7",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2 
-  },
-  recordInfo: { flex: 1 },
-  recordTitle: { fontSize: 16, fontWeight: "700", color: "#1C1C1E", marginBottom: 4 },
-  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  recordDate: { fontSize: 13, color: "#8E8E93" },
+    listPadding: { paddingHorizontal: 20, paddingBottom: 100 },
+    recordCard: { 
+      flexDirection: "row", 
+      backgroundColor: "#FFF", 
+      padding: 16, 
+      borderRadius: 20, 
+      marginBottom: 12, 
+      borderWidth: 1, 
+      borderColor: "#F2F2F7",
+      elevation: 2 
+    },
+    recordInfo: { flex: 1 },
+    recordTitle: { fontSize: 16, fontWeight: "700", color: "#1C1C1E", marginBottom: 4 },
+    dateRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+    recordDate: { fontSize: 13, color: "#8E8E93" },
+    
+    extraInfoContainer: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F2F2F7' },
+    subInfoText: { fontSize: 13, color: '#636366', marginBottom: 2 },
+    nextVisitText: { fontSize: 13, color: '#FF8C00', fontWeight: '600' },
   
-  extraInfoContainer: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F2F2F7' },
-  subInfoText: { fontSize: 13, color: '#636366', marginBottom: 2 },
-  nextVisitText: { fontSize: 13, color: '#FF8C00', fontWeight: '600' },
-
-  actionIcons: { flexDirection: "row", gap: 10, alignItems: 'center' },
-  iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF9F0', justifyContent: 'center', alignItems: 'center' },
-
-  emptyContainer: { alignItems: 'center', marginTop: 100 },
-  emptyText: { textAlign: "center", color: "#AEAEB2", marginTop: 15, fontSize: 15 },
-
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
-  modalContent: { backgroundColor: "#FFF", borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, maxHeight: '80%' },
-  modalHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalHeader: { fontSize: 20, fontWeight: "800", color: '#1C1C1E' },
-  inputLabel: { fontSize: 14, fontWeight: '600', color: '#1C1C1E', marginBottom: 8, marginTop: 10 },
-  input: { backgroundColor: "#F2F2F7", padding: 15, borderRadius: 12, fontSize: 15, color: '#1C1C1E' },
-  saveBtn: { backgroundColor: "#FF8C00", paddingVertical: 16, borderRadius: 15, marginTop: 30, alignItems: 'center' },
-  saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
-});
+    actionIcons: { flexDirection: "row", gap: 10, alignItems: 'center' },
+    iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF9F0', justifyContent: 'center', alignItems: 'center' },
+  
+    emptyContainer: { alignItems: 'center', marginTop: 100 },
+    emptyText: { textAlign: "center", color: "#AEAEB2", marginTop: 15, fontSize: 15 },
+  
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
+    modalContent: { backgroundColor: "#FFF", borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, maxHeight: '80%' },
+    modalHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    modalHeader: { fontSize: 20, fontWeight: "800", color: '#1C1C1E' },
+    inputLabel: { fontSize: 14, fontWeight: '600', color: '#1C1C1E', marginBottom: 8, marginTop: 10 },
+    input: { backgroundColor: "#F2F2F7", padding: 15, borderRadius: 12, fontSize: 15, color: '#1C1C1E' },
+    saveBtn: { backgroundColor: "#FF8C00", paddingVertical: 16, borderRadius: 15, marginTop: 30, alignItems: 'center' },
+    saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  });
 
 export default PetMedicalRecordsScreen;
