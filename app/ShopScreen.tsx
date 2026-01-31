@@ -203,7 +203,7 @@ const ShopScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
   scrollContent: { paddingBottom: 150 }, // Tab bar එකට ඉඩ තැබීමට වැඩි කළා
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, height: 80 },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, height: 120 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: "#F2F2F7", justifyContent: "center", alignItems: "center" },
   headerTitle: { fontSize: 22, fontWeight: "800", color: "#1C1C1E" },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 12 },

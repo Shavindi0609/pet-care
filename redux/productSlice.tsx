@@ -10,9 +10,14 @@ interface Product {
   color: string;
 }
 
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 interface ProductState {
   items: Product[];
-  cart: { product: Product; quantity: number }[];
+  cart: CartItem[];
   loading: boolean;
 }
 
@@ -26,11 +31,9 @@ const productSlice = createSlice({
   name: "products",
   initialState,
   reducers: {
-    // Firestore එකෙන් ගන්න දත්ත Store එකට දැමීම
     setProducts: (state, action: PayloadAction<Product[]>) => {
       state.items = action.payload;
     },
-    // Cart එකට බඩු එකතු කිරීම
     addToCart: (state, action: PayloadAction<Product>) => {
       const existingItem = state.cart.find(item => item.product.id === action.payload.id);
       if (existingItem) {
@@ -39,12 +42,25 @@ const productSlice = createSlice({
         state.cart.push({ product: action.payload, quantity: 1 });
       }
     },
-    // Cart එකෙන් අයින් කිරීම
     removeFromCart: (state, action: PayloadAction<string>) => {
       state.cart = state.cart.filter(item => item.product.id !== action.payload);
+    },
+    // --- අලුතින් එකතු කළ කොටස ---
+    incrementQty: (state, action: PayloadAction<string>) => {
+      const item = state.cart.find(i => i.product.id === action.payload);
+      if (item) item.quantity += 1;
+    },
+    decrementQty: (state, action: PayloadAction<string>) => {
+      const item = state.cart.find(i => i.product.id === action.payload);
+      if (item && item.quantity > 1) {
+        item.quantity -= 1;
+      } else {
+        // Quantity එක 1 ට වඩා අඩු වුණොත් cart එකෙන් අයින් කරනවා
+        state.cart = state.cart.filter(i => i.product.id !== action.payload);
+      }
     },
   },
 });
 
-export const { setProducts, addToCart, removeFromCart } = productSlice.actions;
+export const { setProducts, addToCart, removeFromCart, incrementQty, decrementQty } = productSlice.actions;
 export default productSlice.reducer;
