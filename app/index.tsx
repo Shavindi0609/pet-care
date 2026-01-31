@@ -7,6 +7,7 @@ import { auth } from "../config/firebase";
 import { setCart, clearCart } from "../redux/cartSlice";
 import { getCartFromFirestore } from "../services/cartService";
 
+
 // ප්‍රධාන App එක ඇතුළේ තවත් Component එකක් හදමු Redux පාවිච්චි කරන්න පුළුවන් වෙන්න
 function AppContent() {
   const dispatch = useDispatch();

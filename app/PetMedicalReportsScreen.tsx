@@ -234,47 +234,52 @@ const PetMedicalRecordsScreen = ({ navigation, route }: any) => {
                </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={styles.inputLabel}>{activeTab === "VET Visits" ? "Reason for visit" : "Record Title"}</Text>
-                <TextInput 
-                placeholder="e.g. Annual Checkup" 
-                style={styles.input} 
-                value={title}
-                onChangeText={setTitle}
-                />
+            {/* Modal ඇතුළත ඇති ScrollView එක මේ විදිහට update කරන්න */}
+<ScrollView 
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={{ paddingBottom: 40 }} // මෙන්න මෙතනින් පහළට අමතර ඉඩක් දෙනවා
+>
+    <Text style={styles.inputLabel}>{activeTab === "VET Visits" ? "Reason for visit" : "Record Title"}</Text>
+    <TextInput 
+      placeholder="e.g. Annual Checkup" 
+      style={styles.input} 
+      value={title}
+      onChangeText={setTitle}
+    />
 
-                <Text style={styles.inputLabel}>Date</Text>
-                <TextInput 
-                placeholder="YYYY-MM-DD" 
-                style={styles.input} 
-                value={date}
-                onChangeText={setDate}
-                />
+    <Text style={styles.inputLabel}>Date</Text>
+    <TextInput 
+      placeholder="YYYY-MM-DD" 
+      style={styles.input} 
+      value={date}
+      onChangeText={setDate}
+    />
 
-                {activeTab === "VET Visits" && (
-                <>
-                    <Text style={styles.inputLabel}>Clinic / Doctor Name</Text>
-                    <TextInput 
-                    placeholder="Happy Paws Clinic" 
-                    style={styles.input} 
-                    value={clinicName}
-                    onChangeText={setClinicName}
-                    />
+    {activeTab === "VET Visits" && (
+      <>
+        <Text style={styles.inputLabel}>Clinic / Doctor Name</Text>
+        <TextInput 
+          placeholder="Happy Paws Clinic" 
+          style={styles.input} 
+          value={clinicName}
+          onChangeText={setClinicName}
+        />
 
-                    <Text style={styles.inputLabel}>Next Visit Date (YYYY-MM-DD)</Text>
-                    <TextInput 
-                    placeholder="2024-12-30" 
-                    style={styles.input} 
-                    value={nextVisit}
-                    onChangeText={setNextVisit}
-                    />
-                </>
-                )}
+        <Text style={styles.inputLabel}>Next Visit Date (YYYY-MM-DD)</Text>
+        <TextInput 
+          placeholder="2024-12-30" 
+          style={styles.input} 
+          value={nextVisit}
+          onChangeText={setNextVisit}
+        />
+      </>
+    )}
 
-                <TouchableOpacity style={styles.saveBtn} onPress={handleSaveRecord}>
-                <Text style={styles.saveBtnText}>{editingId ? "Update Record" : "Save Record"}</Text>
-                </TouchableOpacity>
-            </ScrollView>
+    {/* බටන් එක සම්පූර්ණයෙන් පෙනෙන බව සහතික කිරීමට මෙයට Margin එකක් දෙන්න */}
+    <TouchableOpacity style={styles.saveBtn} onPress={handleSaveRecord}>
+      <Text style={styles.saveBtnText}>{editingId ? "Update Record" : "Save Record"}</Text>
+    </TouchableOpacity>
+</ScrollView>
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -331,13 +336,28 @@ const styles = StyleSheet.create({
     emptyText: { textAlign: "center", color: "#AEAEB2", marginTop: 15, fontSize: 15 },
   
     modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
-    modalContent: { backgroundColor: "#FFF", borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, maxHeight: '80%' },
+    // modalContent: { backgroundColor: "#FFF", borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, maxHeight: '80%' },
     modalHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
     modalHeader: { fontSize: 20, fontWeight: "800", color: '#1C1C1E' },
     inputLabel: { fontSize: 14, fontWeight: '600', color: '#1C1C1E', marginBottom: 8, marginTop: 10 },
     input: { backgroundColor: "#F2F2F7", padding: 15, borderRadius: 12, fontSize: 15, color: '#1C1C1E' },
-    saveBtn: { backgroundColor: "#FF8C00", paddingVertical: 16, borderRadius: 15, marginTop: 30, alignItems: 'center' },
+    // saveBtn: { backgroundColor: "#FF8C00", paddingVertical: 16, borderRadius: 15, marginTop: 30, alignItems: 'center' },
     saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+    modalContent: { 
+  backgroundColor: "#FFF", 
+  borderTopLeftRadius: 30, 
+  borderTopRightRadius: 30, 
+  padding: 25, 
+  maxHeight: '90%', // 80% සිට 90% දක්වා වැඩි කළා
+},
+saveBtn: { 
+  backgroundColor: "#FF8C00", 
+  paddingVertical: 16, 
+  borderRadius: 15, 
+  marginTop: 20, // 30 සිට 20 දක්වා අඩු කළා space ඉතුරු කරගන්න
+  marginBottom: 20, // පහළින් අමතර margin එකක් දුන්නා
+  alignItems: 'center' 
+},
   });
 
 export default PetMedicalRecordsScreen;
