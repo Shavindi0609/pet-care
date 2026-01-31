@@ -1,51 +1,64 @@
-import React from "react";
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, SafeAreaView } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { incrementQty, decrementQty, removeFromCart } from "../redux/productSlice";
+import { incrementQty, decrementQty, removeFromCart } from "../redux/cartSlice";
+import React, { useState, useEffect } from "react";
+import { auth } from "../config/firebase"; // auth import කරන්න
+import { saveCartToFirestore } from "../services/cartService"; // save function එක ගන්න
+import { RootState } from "../store"; // RootState එක import කරගන්න
 
 const MAIN_ORANGE = "#FF8C00";
 
 const CartScreen = ({ navigation }: any) => {
-  const cartItems = useSelector((state: any) => state.products.cart);
+  const cartItems = useSelector((state: RootState) => state.cart.cartItems) || [];
   const dispatch = useDispatch();
 
-  // මුළු මුදල ගණනය කිරීම
-  const totalPrice = cartItems.reduce((acc: number, item: any) => {
-    // Price එක string එකක් නිසා "$" හෝ "Rs" අයින් කර Number එකක් කරගන්නවා
-    const priceValue = parseFloat(item.product.price.replace(/[^0-9.]/g, ''));
-    return acc + (priceValue * item.quantity);
-  }, 0);
+    // CartScreen.tsx ඇතුළත මෙහෙම කරන්න
+    useEffect(() => {
+    const user = auth.currentUser;
+    // Firestore එකෙන් data ටික Redux එකට එනකම් පොඩි වෙලාවක් යන නිසා
+    // අපි save කරන්නේ cart එකේ බඩු තියෙනවා නම් විතරයි.
+    if (user && cartItems.length > 0) {
+        saveCartToFirestore(user.uid, cartItems);
+    }
+    }, [cartItems]);
 
-  const renderCartItem = ({ item }: any) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.product.image }} style={styles.image} resizeMode="contain" />
-      
-      <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={1}>{item.product.name}</Text>
-        <Text style={styles.brand}>{item.product.brand}</Text>
-        <Text style={styles.price}>{item.product.price}</Text>
+
+    // මුළු මුදල ගණනය කිරීම
+    const totalPrice = cartItems.reduce((acc: number, item: any) => {
+        // Price string එකේ ඇති සංකේත අයින් කර අගය ලබා ගැනීම
+        const priceValue = parseFloat(item.product.price.replace(/[^0-9.]/g, '')) || 0;
+        return acc + (priceValue * item.quantity);
+    }, 0);
+
+    const renderCartItem = ({ item }: any) => (
+        <View style={styles.card}>
+        <Image source={{ uri: item.product.image }} style={styles.image} resizeMode="contain" />
         
-        <View style={styles.qtyRow}>
-          <TouchableOpacity onPress={() => dispatch(decrementQty(item.product.id))} style={styles.qtyBtn}>
-            <MaterialCommunityIcons name="minus" size={18} color="#1A1A1A" />
-          </TouchableOpacity>
-          <Text style={styles.qtyNum}>{item.quantity}</Text>
-          <TouchableOpacity onPress={() => dispatch(incrementQty(item.product.id))} style={styles.qtyBtn}>
-            <MaterialCommunityIcons name="plus" size={18} color="#1A1A1A" />
-          </TouchableOpacity>
+        <View style={styles.info}>
+            <Text style={styles.name} numberOfLines={1}>{item.product.name}</Text>
+            <Text style={styles.brand}>{item.product.brand}</Text>
+            <Text style={styles.price}>{item.product.price}</Text>
+            
+            <View style={styles.qtyRow}>
+            <TouchableOpacity onPress={() => dispatch(decrementQty(item.product.id))} style={styles.qtyBtn}>
+                <MaterialCommunityIcons name="minus" size={18} color="#1A1A1A" />
+            </TouchableOpacity>
+            <Text style={styles.qtyNum}>{item.quantity}</Text>
+            <TouchableOpacity onPress={() => dispatch(incrementQty(item.product.id))} style={styles.qtyBtn}>
+                <MaterialCommunityIcons name="plus" size={18} color="#1A1A1A" />
+            </TouchableOpacity>
+            </View>
         </View>
-      </View>
 
-      <TouchableOpacity onPress={() => dispatch(removeFromCart(item.product.id))} style={styles.deleteBtn}>
-        <MaterialCommunityIcons name="trash-can-outline" size={24} color="#FF4D4D" />
-      </TouchableOpacity>
-    </View>
-  );
+        <TouchableOpacity onPress={() => dispatch(removeFromCart(item.product.id))} style={styles.deleteBtn}>
+            <MaterialCommunityIcons name="trash-can-outline" size={24} color="#FF4D4D" />
+        </TouchableOpacity>
+        </View>
+    );
 
-  return (
+ return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialCommunityIcons name="chevron-left" size={30} color="#1A1A1A" />
@@ -68,7 +81,6 @@ const CartScreen = ({ navigation }: any) => {
             contentContainerStyle={{ padding: 20 }}
           />
 
-          {/* Checkout Footer */}
           <View style={styles.footer}>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Total Amount</Text>

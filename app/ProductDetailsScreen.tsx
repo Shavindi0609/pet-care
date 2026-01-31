@@ -5,7 +5,10 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/productSlice";
+import { addToCart } from "../redux/cartSlice";
+import { auth } from "../config/firebase"; // Auth import කරන්න
+import { saveCartToFirestore } from "../services/cartService";
+import { RootState } from "../store"; // RootState එක import කරගන්න
 
 const { height } = Dimensions.get("window");
 const MAIN_ORANGE = "#FF8C00";
@@ -13,17 +16,20 @@ const MAIN_ORANGE = "#FF8C00";
 const ProductDetailsScreen = ({ route, navigation }: any) => {
   const { product } = route.params;
   const dispatch = useDispatch();
-
-  // මේ පේළි දෙක ඇතුළත් කරන්න
-  const cartItems = useSelector((state: any) => state.products.cart);
+  // අලුත් එක (නිවැරදි):
+const cartItems = useSelector((state: RootState) => state.cart.cartItems) || [];
   const cartCount = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
+  const [selectedWeight, setSelectedWeight] = useState("4kg");
 
-    const [selectedWeight, setSelectedWeight] = useState("4kg");
-
-  const handleAddToCart = () => {
-    dispatch(addToCart(product));
-  };
-
+const handleAddToCart = () => {
+  // 1. Redux එක update කරනවා පමණි
+  dispatch(addToCart(product));
+  
+  // 2. Alert එකක් හෝ Toast එකක් පෙන්වන්න (අවශ්‍ය නම්)
+  // Alert.alert("Success", "Product added to cart!");
+};
+  
+  // ... ඉතිරි return කොටස කලින් වගේමයි ...
   return (
     <View style={styles.mainWrapper}>
       <StatusBar barStyle="dark-content" />

@@ -1,16 +1,35 @@
+// import React, { useState, useEffect } from "react";
+// import {
+//   View, Text, StyleSheet, ScrollView, TouchableOpacity,
+//   TextInput, Dimensions, SafeAreaView, StatusBar,
+//   Image, ActivityIndicator, Alert
+// } from "react-native";
+// import { MaterialCommunityIcons } from "@expo/vector-icons";
+// import { useDispatch, useSelector } from "react-redux";
+
+// // Services සහ Redux Actions
+// import { subscribeToProducts } from "../services/shopService"; // subscribe function එක import කරන්න
+// import { setCart, addToCart } from "../redux/cartSlice";
+// import { RootState } from "../store";
+
 import React, { useState, useEffect } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, Dimensions, SafeAreaView, StatusBar,
-  Image, ActivityIndicator, Alert
+  Image, ActivityIndicator
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 
-// Services සහ Redux Actions
-import { subscribeToProducts } from "../services/shopService"; // subscribe function එක import කරන්න
-import { setProducts, addToCart } from "../redux/productSlice";
+// Redux Actions (අලුත් cartSlice එකෙන්)
+import { setProducts } from "../redux/productSlice";
+import { addToCart } from "../redux/cartSlice"; 
 import { RootState } from "../store";
+
+// Firebase සහ Services
+import { auth } from "../config/firebase";
+import { saveCartToFirestore } from "../services/cartService";
+import { subscribeToProducts } from "../services/shopService";
 
 const { width } = Dimensions.get("window");
 const MAIN_ORANGE = "#FF8C00";
@@ -20,11 +39,13 @@ const ShopScreen = ({ navigation }: any) => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  // Redux Store එකෙන් Data ලබා ගැනීම
+  // 1. Redux Store එකෙන් Data ලබා ගැනීම
   const products = useSelector((state: RootState) => state.products.items);
-  const cartItems = useSelector((state: RootState) => state.products.cart);
+  
+  // මෙතන state.cart.cartItems ලෙස නිවැරදි කළා (අලුත් slice එකට අනුව)
+  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-
   // Categories Data
   const exploreCategories = [
     { id: "e1", name: "Dog Food", icon: "dog" },
@@ -42,24 +63,38 @@ const ShopScreen = ({ navigation }: any) => {
     { name: "Bird", emoji: "🐦" },
     { name: "Horse", emoji: "🐴" },
   ];
-
-  // --- Real-time Firestore Listener ---
+// 2. Real-time Firestore Listener (Products සඳහා)
   useEffect(() => {
     setLoading(true);
-
-    // subscribeToProducts හරහා Firestore එකට connect වීම
     const unsubscribe = subscribeToProducts(activeCategory, (data) => {
       dispatch(setProducts(data as any));
       setLoading(false);
     });
-
-    // Screen එකෙන් ඉවත් වන විට listener එක නතර කිරීම (Memory leak වැළැක්වීමට)
     return () => unsubscribe();
   }, [activeCategory, dispatch]);
 
-  const handleAddToCart = (item: any) => {
-    dispatch(addToCart(item));
-    // මෙතන Alert එකක් වෙනුවට Toast එකක් දැම්මොත් වඩාත් ලස්සනයි
+// 3. Add to Cart Logic (User-wise Firestore Sync)
+  const handleAddToCart = async (product: any) => {
+    // පළමුව Redux Store එක update කරනවා
+    dispatch(addToCart(product));
+
+    // User ලොග් වී සිටී නම් Firestore එකට sync කරනවා
+    const user = auth.currentUser;
+    if (user) {
+      // දැනට ඇති cart එකට අලුත් product එක එකතු කරලා update එක යවනවා
+      const isExist = cartItems.find((item) => item.product.id === product.id);
+      let updatedCart;
+
+      if (isExist) {
+        updatedCart = cartItems.map((item) =>
+          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      } else {
+        updatedCart = [...cartItems, { product, quantity: 1 }];
+      }
+
+      await saveCartToFirestore(user.uid, updatedCart);
+    }
   };
 
   return (

@@ -3,6 +3,7 @@ import authReducer from "../redux/authSlice";
 import petReducer from "../redux/petSlice";
 import medicalReducer from "../redux/medicalSlice";
 import productReducer from "../redux/productSlice";
+import cartReducer from "../redux/cartSlice"; // අලුත් එක
 
 export const store = configureStore({
   reducer: {
@@ -10,7 +11,7 @@ export const store = configureStore({
     pets: petReducer,
     medical: medicalReducer,
     products: productReducer,
-    
+    cart: cartReducer,
   },
 
   middleware: (getDefaultMiddleware) =>
