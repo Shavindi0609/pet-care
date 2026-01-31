@@ -4,7 +4,7 @@ import {
   ScrollView, SafeAreaView, StatusBar, Dimensions, Platform
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/productSlice";
 
 const { height } = Dimensions.get("window");
@@ -13,7 +13,12 @@ const MAIN_ORANGE = "#FF8C00";
 const ProductDetailsScreen = ({ route, navigation }: any) => {
   const { product } = route.params;
   const dispatch = useDispatch();
-  const [selectedWeight, setSelectedWeight] = useState("4kg");
+
+  // මේ පේළි දෙක ඇතුළත් කරන්න
+  const cartItems = useSelector((state: any) => state.products.cart);
+  const cartCount = cartItems.reduce((total: number, item: any) => total + item.quantity, 0);
+
+    const [selectedWeight, setSelectedWeight] = useState("4kg");
 
   const handleAddToCart = () => {
     dispatch(addToCart(product));
@@ -30,8 +35,13 @@ const ProductDetailsScreen = ({ route, navigation }: any) => {
             <MaterialCommunityIcons name="chevron-left" size={28} color="#1A1A1A" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Product Details</Text>
-            <TouchableOpacity style={styles.cartBtn} onPress={() => navigation.navigate("Cart")}>
+           <TouchableOpacity style={styles.cartBtn} onPress={() => navigation.navigate("Cart")}>
             <MaterialCommunityIcons name="cart-outline" size={26} color={MAIN_ORANGE} />
+            {cartCount > 0 && (
+                <View style={styles.badgeContainer}>
+                <Text style={styles.badgeText}>{cartCount}</Text>
+                </View>
+            )}
             </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -114,7 +124,7 @@ const styles = StyleSheet.create({
     alignItems: "center", 
     justifyContent: "space-between", 
     paddingHorizontal: 20, 
-    height: 100,
+    height: 120,
   },
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#F5F5F5", justifyContent: "center", alignItems: "center" },
   headerTitle: { fontSize: 18, fontWeight: "bold", color: "#1A1A1A" },
@@ -189,7 +199,26 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '800',
-  }
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#FF4D4D',
+    borderRadius: 9,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFF',
+    zIndex: 1,
+  },
+  badgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
 });
 
 export default ProductDetailsScreen;

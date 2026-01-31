@@ -86,7 +86,7 @@ const CartScreen = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFF" },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 20 },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 35 },
   headerTitle: { fontSize: 18, fontWeight: "800" },
   card: { flexDirection: "row", backgroundColor: "#F8F8F8", borderRadius: 20, padding: 15, marginBottom: 15, alignItems: "center" },
   image: { width: 80, height: 80, borderRadius: 10 },
@@ -98,8 +98,8 @@ const styles = StyleSheet.create({
   qtyBtn: { width: 30, height: 30, backgroundColor: "#E5E5EA", borderRadius: 15, justifyContent: "center", alignItems: "center" },
   qtyNum: { marginHorizontal: 15, fontSize: 16, fontWeight: "700" },
   deleteBtn: { padding: 5 },
-  footer: { padding: 120, borderTopWidth: 1, borderTopColor: "#F2F2F7" },
-  totalRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 15 },
+  footer: { padding: 115, borderTopWidth: 1, borderTopColor: "#F2F2F7" },
+  totalRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 2 },
   totalLabel: { fontSize: 16, color: "#8E8E93", fontWeight: "600" },
   totalValue: { fontSize: 22, fontWeight: "900", color: "#1A1A1A" },
   checkoutBtn: { backgroundColor: MAIN_ORANGE, padding: 18, borderRadius: 20, alignItems: "center" },
