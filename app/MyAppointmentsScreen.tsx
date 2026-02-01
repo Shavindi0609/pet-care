@@ -6,6 +6,8 @@ import {
 import { db, auth } from "../config/firebase";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Alert } from 'react-native'; // Alert import කරන්න
+import { deleteAppointmentFromFirestore } from "../services/appointmentService"; // කලින් හදාගත් service එක
 
 const MyAppointmentsScreen = ({ navigation }: any) => {
   const [appointments, setAppointments] = useState<any[]>([]);
@@ -40,6 +42,29 @@ const MyAppointmentsScreen = ({ navigation }: any) => {
     fetchAppointments();
   }, []);
 
+  const handleDelete = (id: string) => {
+  Alert.alert(
+    "Delete Appointment",
+    "Are you sure you want to delete this appointment?",
+    [
+      { text: "Cancel", style: "cancel" },
+      { 
+        text: "Delete", 
+        style: "destructive", 
+        onPress: async () => {
+          try {
+            await deleteAppointmentFromFirestore(id);
+            // මැකුවට පස්සේ ලැයිස්තුව update කරනවා
+            setAppointments(prev => prev.filter(item => item.id !== id));
+          } catch (error) {
+            Alert.alert("Error", "Could not delete appointment.");
+          }
+        } 
+      }
+    ]
+  );
+};
+
   // Status එක අනුව පාට වෙනස් කරන function එකක්
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -51,18 +76,25 @@ const MyAppointmentsScreen = ({ navigation }: any) => {
   };
 
   const renderItem = ({ item }: any) => (
-    <View style={styles.appointmentCard}>
-      <View style={styles.cardHeader}>
-        <View style={styles.serviceInfo}>
-          <MaterialCommunityIcons name="dog-service" size={24} color="#FF8C00" />
-          <Text style={styles.serviceName}>{item.serviceType}</Text>
-        </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
-          <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
-            {item.status.toUpperCase()}
-          </Text>
-        </View>
+<View style={styles.appointmentCard}>
+    <View style={styles.cardHeader}>
+      <View style={styles.serviceInfo}>
+        <MaterialCommunityIcons name="dog-service" size={24} color="#FF8C00" />
+        <Text style={styles.serviceName}>{item.serviceType}</Text>
       </View>
+      
+      {/* Edit & Delete Buttons */}
+      <View style={styles.actionButtons}>
+
+        
+        <TouchableOpacity 
+          onPress={() => handleDelete(item.id)}
+          style={styles.iconBtn}
+        >
+          <MaterialCommunityIcons name="trash-can-outline" size={20} color="#F44336" />
+        </TouchableOpacity>
+      </View>
+    </View>
 
       <View style={styles.detailsContainer}>
         <View style={styles.detailRow}>
@@ -184,6 +216,15 @@ const styles = StyleSheet.create({
   detailText: { fontSize: 14, color: '#6D4C41', marginLeft: 10 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   noDataText: { fontSize: 16, color: '#999', marginTop: 10 },
+  actionButtons: {
+  flexDirection: 'row',
+  gap: 10,
+},
+iconBtn: {
+  padding: 8,
+  backgroundColor: '#F5F5F5',
+  borderRadius: 10,
+},
 });
 
 export default MyAppointmentsScreen;

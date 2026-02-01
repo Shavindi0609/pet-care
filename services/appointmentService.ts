@@ -7,6 +7,7 @@ import {
   orderBy, 
   serverTimestamp,
   deleteDoc,
+  updateDoc,
   doc
 } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -52,4 +53,10 @@ export const getAppointmentsFromFirestore = async (userId: string): Promise<Appo
 export const deleteAppointmentFromFirestore = async (appointmentId: string) => {
   const appRef = doc(db, "appointments", appointmentId);
   return await deleteDoc(appRef);
+};
+
+// Appointment එකක් Update කිරීම
+export const updateAppointmentInFirestore = async (appointmentId: string, updatedData: Partial<Appointment>) => {
+  const appRef = doc(db, "appointments", appointmentId);
+  return await updateDoc(appRef, updatedData);
 };

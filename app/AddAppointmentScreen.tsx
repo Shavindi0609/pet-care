@@ -26,6 +26,7 @@ const AddAppointmentScreen = ({ route, navigation }: any) => {
   const [time, setTime] = useState("");
   const [isFetching, setIsFetching] = useState(false);
 
+
   useEffect(() => {
     const fetchPetsIfNeeded = async () => {
       const user = auth.currentUser;
