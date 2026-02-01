@@ -5,6 +5,7 @@ import medicalReducer from "../redux/medicalSlice";
 import productReducer from "../redux/productSlice";
 import cartReducer from "../redux/cartSlice"; // අලුත් එක
 import providerReducer from "../redux/providerSlice"
+import appointmentReducer from "../redux/appointmentSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     products: productReducer,
     cart: cartReducer,
     provider: providerReducer,
+    appointment: appointmentReducer,
 
   },
 

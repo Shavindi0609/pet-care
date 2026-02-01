@@ -1,8 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ServiceDetailsScreen from "../app/ServiceDetailsScreen";
-import AddAppointmentScreen from "../app/ServiceMenuScreen"; // 👈 අලුත් screen එක
+import AddAppointmentScreen from "../app/AddAppointmentScreen"; // 👈 අලුත් screen එක
 import ServiceProvidersScreen from "../app/ServiceProvidersScreen";
+import ServiceMenuScreen from '../app/ServiceMenuScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,8 +21,10 @@ export default function ServiceStack() {
         }} 
       />
       {/* Appointment එක ඇතුළත් කරන screen එක */}
-      <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
+      <Stack.Screen name="ServiceMenu" component={ServiceMenuScreen} />
       <Stack.Screen name="ServiceProviders" component={ServiceProvidersScreen} />
+      {/* Appointment screen එක මෙතැනින් පෙන්වයි */}
+      <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
     </Stack.Navigator>
   );
 }
