@@ -48,9 +48,15 @@ const ServiceDetailsScreen = ({ route, navigation }: any) => {
           ))}
 
           {/* Booking Button */}
-          <TouchableOpacity style={styles.bookBtn}>
+          {/* <TouchableOpacity style={styles.bookBtn}>
             <Text style={styles.bookBtnText}>Book an Appointment</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+        <TouchableOpacity 
+        style={styles.bookBtn}
+        onPress={() => navigation.navigate("AddAppointment", { serviceName: serviceName })} // 👈 නිවැරදි screen name එක
+        >
+        <Text style={styles.bookBtnText}>Book an Appointment</Text>
+        </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
