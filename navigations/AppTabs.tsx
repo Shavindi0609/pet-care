@@ -5,6 +5,7 @@ import ShopScreen from "@/app/ShopScreen";
 // import MyProfileScreen from "@/app/MyProfileScreen";
 import ProfileStack from "./ProfileStack";
 import ShopStack from "./ShopStack"; 
+import ServiceDetailsScreen from "@/app/ServiceDetailsScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -54,15 +55,23 @@ export default function AppTabs() {
             ),
           }}
         />
+    
+   {/* මම කලින් දුන්න comment එක මෙතනින් අයින් කළා. දැන් error එක එන්නේ නැහැ. */}
       <Tab.Screen 
         name="Services" 
-        component={DashboardScreen} 
+        component={ServiceDetailsScreen} 
+        initialParams={{ 
+          serviceName: "Pet Services", 
+          icon: "paw", 
+          subText: "General Care" 
+        }} 
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="content-cut" color={color} size={28} />
           ),
         }}
       />
+      
       <Tab.Screen 
         name="Socialise" 
         component={DashboardScreen} 
