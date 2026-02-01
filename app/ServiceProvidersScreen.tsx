@@ -136,7 +136,7 @@ const ServiceProvidersScreen = ({ route, navigation }: any) => {
 // Styles කලින් දුන්න ඒවාමයි...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 100 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 120 },
   backBtn: { width: 45, height: 45, borderRadius: 22.5, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#5D4037' },
   searchSection: { paddingHorizontal: 20, marginBottom: 20 },

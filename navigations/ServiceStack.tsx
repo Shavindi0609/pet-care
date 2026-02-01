@@ -4,6 +4,8 @@ import ServiceDetailsScreen from "../app/ServiceDetailsScreen";
 import AddAppointmentScreen from "../app/AddAppointmentScreen"; // 👈 අලුත් screen එක
 import ServiceProvidersScreen from "../app/ServiceProvidersScreen";
 import ServiceMenuScreen from '../app/ServiceMenuScreen';
+import MyAppointmentScreen from '../app/MyAppointmentsScreen';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +27,7 @@ export default function ServiceStack() {
       <Stack.Screen name="ServiceProviders" component={ServiceProvidersScreen} />
       {/* Appointment screen එක මෙතැනින් පෙන්වයි */}
       <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
+      <Stack.Screen name="MyAppointments" component={MyAppointmentScreen} />
     </Stack.Navigator>
   );
 }

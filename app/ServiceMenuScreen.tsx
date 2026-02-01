@@ -44,18 +44,25 @@ const ServiceMenuScreen = ({ navigation }: any) => {
         <View style={styles.gridContainer}>
 
       {mainServices.map((item, index) => (
-        <TouchableOpacity 
-          key={index} 
-          style={styles.serviceCard}
-          onPress={() => navigation.navigate("ServiceProviders", { serviceName: item.name })} 
-        >
-          <View style={styles.iconCircle}>
-            <MaterialCommunityIcons name={item.icon as any} size={40} color="#FF8C00" />
-          </View>
-          <Text style={styles.serviceName}>{item.name}</Text>
-        </TouchableOpacity>
-      ))}
-
+  <TouchableOpacity 
+    key={index} 
+    style={styles.serviceCard}
+    onPress={() => {
+      if (item.name === "My Appointments") {
+        // 🔹 මෙතනදී MyAppointmentsScreen එකට navigate කරනවා
+        navigation.navigate("MyAppointments");
+      } else {
+        // 🔹 අනිත් ඒවා සාමාන්‍ය විදිහට ServiceProviders වෙත යනවා
+        navigation.navigate("ServiceProviders", { serviceName: item.name });
+      }
+    }} 
+  >
+    <View style={styles.iconCircle}>
+      <MaterialCommunityIcons name={item.icon as any} size={40} color="#FF8C00" />
+    </View>
+    <Text style={styles.serviceName}>{item.name}</Text>
+  </TouchableOpacity>
+))}
         </View>
 
         {/* Other Helpful Links Section */}
@@ -85,7 +92,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between', 
     paddingHorizontal: 20, 
-    height: 100 
+    height: 120 
   },
   backBtn: { 
     width: 45, 

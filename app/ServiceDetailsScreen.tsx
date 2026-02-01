@@ -65,7 +65,7 @@ const ServiceDetailsScreen = ({ route, navigation }: any) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 110 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 120 },
   backBtn: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#F2F2F7', justifyContent: 'center', alignItems: 'center' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
   imageContainer: { height: 200, backgroundColor: '#FFF5E6', justifyContent: 'center', alignItems: 'center' },
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   subTitle: { fontSize: 18, fontWeight: '700', marginBottom: 15 },
   featureItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 10 },
   featureText: { fontSize: 16, color: '#444' },
-  bookBtn: { backgroundColor: '#FF8C00', paddingVertical: 18, borderRadius: 20, marginTop: 15, alignItems: 'center' },
+  bookBtn: { backgroundColor: '#FF8C00', paddingVertical: 18, borderRadius: 20, marginTop: 7, alignItems: 'center' },
   bookBtnText: { color: '#FFF', fontSize: 18, fontWeight: '800' },
 });
 
