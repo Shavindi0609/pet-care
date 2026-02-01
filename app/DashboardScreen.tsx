@@ -312,10 +312,16 @@ const handleAddNewPet = async (petData: any) => {
       />
 
       {/* Floating Button */}
-      <TouchableOpacity style={styles.askFidoBtn} activeOpacity={0.8}>
-        <View style={styles.askFidoIconWrap}><MaterialCommunityIcons name="dog-service" size={30} color="#FFB800" /></View>
-        <Text style={styles.askFidoText}>Ask Fido?</Text>
-      </TouchableOpacity>
+    <TouchableOpacity 
+      style={styles.askFidoBtn} 
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate("AskFido")} // Navigation එක මෙතනට එකතු කරන්න
+    >
+      <View style={styles.askFidoIconWrap}>
+        <MaterialCommunityIcons name="dog-service" size={30} color="#FFB800" />
+      </View>
+      <Text style={styles.askFidoText}>Ask Fido?</Text>
+    </TouchableOpacity>
     </SafeAreaView>
   );
 };

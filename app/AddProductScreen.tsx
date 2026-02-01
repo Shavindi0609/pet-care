@@ -18,28 +18,38 @@ const AddProductScreen = ({ navigation }: any) => {
   const [image, setImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  
+const categoryColors: { [key: string]: string } = {
+  Dog: "#FFE4E6",   // ලා රෝස
+  Cat: "#FFF9C4",   // ලා කහ
+  Bird: "#E0F2F1",  // ලා නිල්
+  Horse: "#EFEBE9", // ලා දුඹුරු
+};
   // AddProductScreen.tsx ඇතුළත pickImage function එක
 
 const pickImage = async () => {
-  try {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, // මෙය ['images'] ලෙසද උත්සාහ කළ හැක
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    try {
+      // Permission ලබා ගැනීම
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert("Permission Denied", "We need access to your gallery.");
+        return;
+      }
 
-    console.log("Picker Result:", result); // Debug කරලා බලන්න result එක එන හැටි
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images, 
+        allowsEditing: false, // 👈 Error එකක් එනවා නම් මෙය false කර බලන්න
+        quality: 0.7,
+      });
 
-    // අලුත් Expo version වල result.assets පාවිච්චි කළ යුතුමයි
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImage(result.assets[0].uri);
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log("Error picking image:", error);
+      Alert.alert("Error", "Could not open gallery.");
     }
-  } catch (error) {
-    console.log("Error picking image:", error);
-    Alert.alert("Error", "Could not open gallery.");
-  }
-};
+  };
 
   const handleSave = async () => {
     if (!name || !price || !brand || !image) {
@@ -51,13 +61,16 @@ const pickImage = async () => {
       const imageUrl = await uploadImageToCloudinary(image);
       
       if (imageUrl) {
+        // 🔥 තෝරාගත් category එකට අදාළ පාට ලබා ගැනීම
+        const productCardColor = categoryColors[category] || "#F2F2F7";
+
         await addProductToFirestore({
           name,
           price: `$ ${price}`,
           brand,
           animalType: category,
           image: imageUrl,
-          color: category === "Dog" ? "#FFE4E6" : "#FFF9C4", 
+          color: productCardColor, // Database එකට පාට යනවා
         });
 
         Alert.alert("Success", "Product added successfully! 🎉");
@@ -71,7 +84,6 @@ const pickImage = async () => {
       setUploading(false);
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
@@ -89,10 +101,10 @@ const pickImage = async () => {
 
           <View style={styles.form}>
             <Text style={styles.label}>Product Name</Text>
-            <TextInput style={styles.input} placeholder="e.g. Royal Canin" value={name} onChangeText={setName} />
+            <TextInput style={styles.input} placeholder="e.g. Pedigree" value={name} onChangeText={setName} />
 
             <Text style={styles.label}>Brand</Text>
-            <TextInput style={styles.input} placeholder="e.g. Shitsu" value={brand} onChangeText={setBrand} />
+            <TextInput style={styles.input} placeholder="e.g.  Royal Canin" value={brand} onChangeText={setBrand} />
 
             <Text style={styles.label}>Price (USD)</Text>
             <TextInput style={styles.input} placeholder="e.g. 12.66" keyboardType="numeric" value={price} onChangeText={setPrice} />
