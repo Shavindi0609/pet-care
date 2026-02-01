@@ -98,12 +98,29 @@ const MyAppointmentsScreen = ({ navigation }: any) => {
           <ActivityIndicator size="large" color="#FFB300" />
         </View>
       ) : appointments.length > 0 ? (
-        <FlatList
-          data={appointments}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-        />
+<FlatList
+  data={appointments}
+  renderItem={renderItem}
+  keyExtractor={(item) => item.id}
+  contentContainerStyle={styles.listContent}
+  
+  // 1. පහළට ඇදලා refresh කරන්න (Pull to Refresh)
+  onRefresh={fetchAppointments}
+  refreshing={loading}
+  
+  // 2. Scroll bar එක පෙන්වන්න අවශ්‍ය නම් (optional)
+  showsVerticalScrollIndicator={true}
+  
+  // 3. Appointment එකක්වත් නැති වෙලාවට පෙන්නන Empty Component එක (Optional but good)
+  ListEmptyComponent={
+    !loading ? (
+      <View style={styles.center}>
+        <MaterialCommunityIcons name="calendar-blank-outline" size={80} color="#CCC" />
+        <Text style={styles.noDataText}>No appointments found.</Text>
+      </View>
+    ) : null
+  }
+/>
       ) : (
         <View style={styles.center}>
           <MaterialCommunityIcons name="calendar-blank-outline" size={80} color="#CCC" />
@@ -121,7 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between', 
     paddingHorizontal: 20, 
-    height: 80, 
+    height: 120, 
     backgroundColor: '#FFF' 
   },
   backBtn: { 
@@ -134,7 +151,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: { fontSize: 20, fontWeight: '800', color: '#5D4037' },
   refreshBtn: { padding: 5 },
-  listContent: { padding: 20 },
+ listContent: { 
+    padding: 20, 
+    paddingBottom: 100 // 👈 මෙතනට වැඩිපුර ඉඩක් දෙන්න (Navigation bar එකේ උස අනුව)
+  },
   appointmentCard: {
     backgroundColor: '#FFF',
     borderRadius: 20,
