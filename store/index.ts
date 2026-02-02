@@ -6,6 +6,7 @@ import productReducer from "../redux/productSlice";
 import cartReducer from "../redux/cartSlice"; // අලුත් එක
 import providerReducer from "../redux/providerSlice"
 import appointmentReducer from "../redux/appointmentSlice";
+import postReducer from '../redux/postSlice'; // පාර හරියටම චෙක් කරන්න
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     cart: cartReducer,
     provider: providerReducer,
     appointment: appointmentReducer,
+    posts: postReducer,
 
   },
 

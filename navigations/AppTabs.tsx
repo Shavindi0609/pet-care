@@ -7,6 +7,7 @@ import ProfileStack from "./ProfileStack";
 import ShopStack from "./ShopStack"; 
 import ServiceDetailsScreen from "@/app/ServiceDetailsScreen";
 import ServiceStack from "./ServiceStack"; // 👈 අලුතින් import කරන්න
+import SocialiseScreen from "@/app/SocialiseScreen"; // 👈 අලුතින් import කරන්න
 
 const Tab = createBottomTabNavigator();
 
@@ -69,7 +70,7 @@ export default function AppTabs() {
 
       <Tab.Screen 
         name="Socialise" 
-        component={DashboardScreen} 
+        component={SocialiseScreen}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="monitor-screenshot" color={color} size={28} />
