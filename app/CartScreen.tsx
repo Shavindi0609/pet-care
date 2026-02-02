@@ -1,4 +1,8 @@
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, SafeAreaView,Modal, 
+  TextInput, 
+  ScrollView, 
+  KeyboardAvoidingView, 
+  Platform,Alert } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { incrementQty, decrementQty, removeFromCart } from "../redux/cartSlice";
@@ -12,6 +16,13 @@ const MAIN_ORANGE = "#FF8C00";
 const CartScreen = ({ navigation }: any) => {
   const cartItems = useSelector((state: RootState) => state.cart.cartItems) || [];
   const dispatch = useDispatch();
+
+  const [orderModalVisible, setOrderModalVisible] = useState(false);
+    const [customerInfo, setCustomerInfo] = useState({
+        name: "",
+        address: "",
+        phone: ""
+    });
 
     // CartScreen.tsx ඇතුළත මෙහෙම කරන්න
     useEffect(() => {
@@ -30,6 +41,16 @@ const CartScreen = ({ navigation }: any) => {
         const priceValue = parseFloat(item.product.price.replace(/[^0-9.]/g, '')) || 0;
         return acc + (priceValue * item.quantity);
     }, 0);
+
+    const handleCheckout = () => {
+    if (!customerInfo.name || !customerInfo.address || !customerInfo.phone) {
+        Alert.alert("Error", "Please fill all the details to place the order.");
+        return;
+    }
+    // මෙතනදී ඔයාට Order එක Firebase එකට save කරන logic එක ලියන්න පුළුවන්
+    Alert.alert("Success", "Order placed successfully!");
+    setOrderModalVisible(false);
+};
 
     const renderCartItem = ({ item }: any) => (
         <View style={styles.card}>
@@ -82,16 +103,80 @@ const CartScreen = ({ navigation }: any) => {
           />
 
           <View style={styles.footer}>
-            <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total Amount</Text>
-              <Text style={styles.totalValue}>${totalPrice.toFixed(2)}</Text>
-            </View>
-            <TouchableOpacity style={styles.checkoutBtn}>
-              <Text style={styles.checkoutText}>Checkout Now</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total Amount</Text>
+            <Text style={styles.totalValue}>${totalPrice.toFixed(2)}</Text>
+        </View>
+
+        {/* මෙන්න මේ Button එකට තමයි Modal එක open කරන්න onPress එක දෙන්න ඕනේ */}
+        <TouchableOpacity 
+            style={styles.checkoutBtn} 
+            onPress={() => setOrderModalVisible(true)} // 👈 මේක අනිවාර්යයි!
+        >
+            <Text style={styles.checkoutText}>Checkout Now</Text>
+        </TouchableOpacity>
+        </View>
         </>
+
+        
       )}
+
+{/* ---------------------------------------------------- */}
+      {/* Order Form Modal එක මෙන්න මෙතනට දාන්න (SafeAreaView එකට ඇතුළෙන්) */}
+      <Modal visible={orderModalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Delivery Details 🚚</Text>
+              <TouchableOpacity onPress={() => setOrderModalVisible(false)}>
+                <MaterialCommunityIcons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.inputLabel}>Full Name</Text>
+              <TextInput  
+                style={styles.formInput}  
+                placeholder="Enter your name"
+                value={customerInfo.name}
+                onChangeText={(txt) => setCustomerInfo({...customerInfo, name: txt})}
+              />
+
+              <Text style={styles.inputLabel}>Phone Number</Text>
+              <TextInput  
+                style={styles.formInput}  
+                placeholder="07X XXX XXXX"
+                keyboardType="phone-pad"
+                value={customerInfo.phone}
+                onChangeText={(txt) => setCustomerInfo({...customerInfo, phone: txt})}
+              />
+
+              <Text style={styles.inputLabel}>Delivery Address</Text>
+              <TextInput  
+                style={[styles.formInput, { height: 80, textAlignVertical: 'top' }]}  
+                placeholder="Enter full address"
+                multiline
+                value={customerInfo.address}
+                onChangeText={(txt) => setCustomerInfo({...customerInfo, address: txt})}
+              />
+
+              <View style={styles.orderSummary}>
+                <Text style={styles.summaryText}>Total Amount: ${totalPrice.toFixed(2)}</Text>
+              </View>
+
+            {/* Modal එක ඇතුළේ තියෙන කොටස */}
+            <TouchableOpacity 
+            style={styles.confirmBtn} // Confirm style එක පාවිච්චි කරන්න
+            onPress={handleCheckout}  // 👈 මේකෙන් තමයි Order එක Save වෙන්නේ
+            >
+            <Text style={styles.confirmBtnText}>Confirm Order</Text>
+            </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+      {/* ---------------------------------------------------- */}
+      
     </SafeAreaView>
   );
 };
@@ -117,7 +202,74 @@ const styles = StyleSheet.create({
   checkoutBtn: { backgroundColor: MAIN_ORANGE, padding: 18, borderRadius: 20, alignItems: "center" },
   checkoutText: { color: "#FFF", fontSize: 16, fontWeight: "800" },
   emptyContent: { flex: 1, justifyContent: "center", alignItems: "center" },
-  emptyText: { fontSize: 16, color: "#8E8E93", marginTop: 10 }
+  emptyText: { fontSize: 16, color: "#8E8E93", marginTop: 10 },
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)', // පසුබිම අඳුරු කරන්න
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 25,
+    height: '75%', // Screen එකෙන් 75% ක් උස
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#1A1A1A',
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#666',
+    marginBottom: 8,
+    marginTop: 15,
+  },
+  formInput: {
+    backgroundColor: '#F5F5F7',
+    borderRadius: 12,
+    padding: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#EEE',
+  },
+  orderSummary: {
+    backgroundColor: '#FFF8F0',
+    padding: 15,
+    borderRadius: 12,
+    marginTop: 25,
+    borderWidth: 1,
+    borderColor: MAIN_ORANGE,
+  },
+  summaryText: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: MAIN_ORANGE,
+    textAlign: 'center',
+  },
+  confirmBtn: {
+    backgroundColor: MAIN_ORANGE,
+    padding: 18,
+    borderRadius: 15,
+    marginTop: 20,
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  confirmBtnText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: '800',
+  }
 });
 
 export default CartScreen;
