@@ -13,6 +13,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { addPostToFirestore, getPostsFromFirestore, Post } from '../services/postService';
 import { setPosts, setPostLoading, addNewPost } from '../redux/postSlice';
 import { auth } from "../config/firebase";
+import { uploadImageToCloudinary } from '../services/cloudinaryService';
 
 const { width } = Dimensions.get('window');
 
@@ -64,37 +65,53 @@ const pickImage = async () => {
   }
 };
 
-  const handleAddPost = async () => {
-    if (!status || !pet || !image) {
-      Alert.alert("Missing Fields", "Please add a photo and fill all details.");
-      return;
+const handleAddPost = async () => {
+  // 1. Fields චෙක් කිරීම
+  if (!status || !pet || !image) {
+    Alert.alert("Missing Fields", "Please add a photo and fill all details.");
+    return;
+  }
+  
+  dispatch(setPostLoading(true)); // Loading Spinner එක පටන් ගන්නවා
+  
+  try {
+    // 2. Cloudinary එකට රූපය Upload කරලා URL එක ලබා ගැනීම
+    console.log("Uploading image to Cloudinary...");
+    const cloudinaryUrl = await uploadImageToCloudinary(image);
+
+    if (!cloudinaryUrl) {
+      throw new Error("Cloudinary upload failed");
     }
+
+    const user = auth.currentUser?.displayName || "Pet Lover";
     
-    dispatch(setPostLoading(true));
-    try {
-      const user = auth.currentUser?.displayName || "Pet Lover";
-      
-      // සටහන: මෙය දැනට Local URI එක Save කරයි. 
-      // පොදු (Public) පෝස්ට් සඳහා Firebase Storage අවශ්‍ය වේ.
-      const newPostData = { 
-        user, 
-        pet, 
-        image: image, 
-        status 
-      };
-      
-      const docRef = await addPostToFirestore(newPostData);
-      dispatch(addNewPost({ id: docRef.id, ...newPostData, likes: 0 }));
-      
-      setModalVisible(false);
-      setStatus(""); setPet(""); setImage(null);
-      Alert.alert("Success! 🐾", "Your post is live.");
-    } catch (e) {
-      Alert.alert("Error", "Failed to upload post.");
-    } finally {
-      dispatch(setPostLoading(false));
-    }
-  };
+    // 3. Firestore එකට අලුත් පෝස්ට් එකේ දත්ත යැවීම
+    const newPostData = { 
+      user, 
+      pet, 
+      image: cloudinaryUrl, // 👈 දැන් මෙතනට වැටෙන්නේ Cloud URL එක
+      status 
+    };
+    
+    const docRef = await addPostToFirestore(newPostData);
+    
+    // 4. Redux state එක update කිරීම
+    dispatch(addNewPost({ id: docRef.id, ...newPostData, likes: 0 }));
+    
+    // 5. Modal එක වසා පිරිසිදු කිරීම
+    setModalVisible(false);
+    setStatus(""); 
+    setPet(""); 
+    setImage(null);
+    
+    Alert.alert("Success! 🐾", "Your post is live.");
+  } catch (e) {
+    console.error("Post error:", e);
+    Alert.alert("Error", "Something went wrong while posting.");
+  } finally {
+    dispatch(setPostLoading(false)); // Loading Spinner එක නතර කරනවා
+  }
+};
 
   const renderPost = ({ item }: { item: Post }) => (
     <View style={styles.postCard}>
