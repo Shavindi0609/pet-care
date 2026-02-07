@@ -26,29 +26,36 @@ const ServiceProvidersScreen = ({ route, navigation }: any) => {
           name: "Happy Paws Grooming",
           address: "123 Pet Lane, Colombo 07",
           category: "Grooming",
-          image: "https://api.dicebear.com/7.x/bottts/png?seed=vet1",
+          image: "https://www.logoai.com/uploads/output/2022/05/27/9bbee63d358daae0ed7fb057feb5439f.jpg",
         },
         {
           id: "2",
           name: "City Vet Hospital",
           address: "456 Main Street, Kandy",
-          category: "Veterinary",
-          image: "https://api.dicebear.com/7.x/bottts/png?seed=vet2",
+          category: "Boarding",
+          image: "https://marketplace.canva.com/EAGx0ZCMo9I/1/0/1600w/canva-gray-white-and-black-playful-pets-store-logo-kFLHgX6BuYg.jpg",
         },
         {
           id: "3",
           name: "Pet Transit Express",
           address: "789 Speed Way, Gampaha",
           category: "Transportation",
-          image: "https://api.dicebear.com/7.x/bottts/png?seed=vet3",
+          image: "https://images-platform.99static.com//Z3KOywl6LC0Mj48IUgIqxT4YYJk=/213x1:807x596/fit-in/500x500/99designs-contests-attachments/86/86444/attachment_86444644",
         },
         {
           id: "4",
           name: "Elite Pet Boarding",
           address: "Zone 56 Building 23, Doha",
           category: "Boarding",
-          image: "https://api.dicebear.com/7.x/bottts/png?seed=vet4",
-        }
+          image: "https://img.freepik.com/free-vector/home-pets-logo-icon_126523-600.jpg?semt=ais_hybrid&w=740",
+        },
+                {
+          id: "5",
+          name: "Pet Mama",
+          address: "789 Speed Way, Gampaha",
+          category: "Grooming",
+          image: "https://cdn.dribbble.com/userupload/10404871/file/original-12fac639eb8c835d3611cc3e3df53c43.jpg?crop=806x926-3801x3172&format=webp&resize=400x300&vertical=center",
+        },
       ];
 
       // දැනට තෝරාගෙන තියෙන category එකට විතරක් filter කරලා දත්ත ටික Redux එකට දානවා
