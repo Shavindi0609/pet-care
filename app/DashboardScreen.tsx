@@ -37,11 +37,11 @@ const DashboardScreen = ({ navigation }: any) => {
   
   const flatListRef = useRef<FlatList>(null);
 
-  const heroSlides = [
-    { id: "1", title: "Create a Pet Profile", sub: "Unlock personalized care and gain 50 loyalty points", badge: "NEW FEATURE", color: "#FFF3E0", textColor: "#E65100", btnColor: "#FF8C00" },
-    { id: "2", title: "Grooming Offers", sub: "Get 20% off on your first grooming session this month!", badge: "LIMITED OFFER", color: "#FFE4E6", textColor: "#8D6E63", btnColor: "#E91E63" },
-    { id: "3", title: "Expert Consultation", sub: "Talk to professional vets online for your pet health.", badge: "HEALTH CARE", color: "#FFE0B2", textColor: "#BF360C", btnColor: "#E65100" },
-  ];
+  // const heroSlides = [
+  //   { id: "1", title: "Create a Pet Profile", sub: "Unlock personalized care and gain 50 loyalty points", badge: "NEW FEATURE", color: "#FFF3E0", textColor: "#E65100", btnColor: "#FF8C00" },
+  //   { id: "2", title: "Grooming Offers", sub: "Get 20% off on your first grooming session this month!", badge: "LIMITED OFFER", color: "#FFE4E6", textColor: "#8D6E63", btnColor: "#E91E63" },
+  //   { id: "3", title: "Expert Consultation", sub: "Talk to professional vets online for your pet health.", badge: "HEALTH CARE", color: "#FFE0B2", textColor: "#BF360C", btnColor: "#E65100" },
+  // ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -89,6 +89,39 @@ const DashboardScreen = ({ navigation }: any) => {
     }
   };
 
+  const heroSlides = [
+  { 
+    id: "1", 
+    title: "Create a Pet Profile", 
+    sub: "Unlock personalized care and gain 50 loyalty points", 
+    badge: "NEW FEATURE", 
+    color: "#FFF3E0", 
+    textColor: "#E65100", 
+    btnColor: "#FF8C00",
+    image: "https://static.vecteezy.com/system/resources/thumbnails/041/713/275/small/ai-generated-happy-australian-shepherd-dog-lying-down-with-tongue-out-on-transparent-background-stock-png.png" // උදාහරණයක් ලෙස
+  },
+  { 
+    id: "2", 
+    title: "Grooming Offers", 
+    sub: "Get 20% off on your first grooming session!", 
+    badge: "LIMITED OFFER", 
+    color: "#FFE4E6", 
+    textColor: "#8D6E63", 
+    btnColor: "#E91E63",
+    image: "https://static.vecteezy.com/system/resources/thumbnails/059/044/454/small/two-cats-sitting-next-to-each-other-on-a-black-background-free-png.png" 
+  },
+  { 
+    id: "3", 
+    title: "Expert Consultation", 
+    sub: "Talk to professional vets online for your pet health.", 
+    badge: "HEALTH CARE", 
+    color: "#FFE0B2", 
+    textColor: "#BF360C", 
+    btnColor: "#E65100",
+    image: "https://static.vecteezy.com/system/resources/thumbnails/059/153/370/small/striped-tabby-kitten-hugging-a-smiling-puppy-with-its-paws-on-an-isolated-solid-color-background-transparent-background-png.png"
+  },
+  // ... අනිත් ඒවාටත් දාන්න
+];
   const shopCategories = [
     { name: "All", emoji: "🐾" }, { name: "Dog", emoji: "🐶" }, { name: "Cat", emoji: "🐱" },
     { name: "Bird", emoji: "🐦" }, { name: "Horse", emoji: "🐴" }, { name: "Cow", emoji: "🐮" },
@@ -187,15 +220,28 @@ const handleAddNewPet = async (petData: any) => {
             }}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <TouchableOpacity style={[styles.heroCard, { backgroundColor: item.color }]} activeOpacity={0.9}>
-                <View style={styles.heroTextContent}>
-                  <View style={[styles.newBadge, { backgroundColor: "rgba(0,0,0,0.05)" }]}><Text style={[styles.newBadgeText, { color: item.textColor }]}>{item.badge}</Text></View>
-                  <Text style={styles.heroTitle}>{item.title}</Text>
-                  <Text style={styles.heroSubText}>{item.sub}</Text>
-                  <TouchableOpacity style={[styles.heroBtn, { backgroundColor: item.btnColor }]}><Text style={styles.heroBtnText}>Start Now</Text></TouchableOpacity>
+            <TouchableOpacity style={[styles.heroCard, { backgroundColor: item.color }]} activeOpacity={0.9}>
+              <View style={styles.heroTextContent}>
+                <View style={[styles.newBadge, { backgroundColor: "rgba(0,0,0,0.05)" }]}>
+                  <Text style={[styles.newBadgeText, { color: item.textColor }]}>{item.badge}</Text>
                 </View>
-                <View style={styles.heroIconFloating}><MaterialCommunityIcons name="paw" size={140} color="rgba(0,0,0,0.04)" /></View>
-              </TouchableOpacity>
+                <Text style={styles.heroTitle}>{item.title}</Text>
+                <Text style={styles.heroSubText}>{item.sub}</Text>
+                <TouchableOpacity style={[styles.heroBtn, { backgroundColor: item.btnColor }]}>
+                  <Text style={styles.heroBtnText}>Start Now</Text>
+                </TouchableOpacity>
+              </View>
+
+                {/* මෙතනට Image එක එකතු කරන්න */}
+            <Image 
+              source={{ uri: item.image }} 
+              style={styles.heroImage} 
+              resizeMode="contain" 
+            />
+               <View style={styles.heroIconFloating}>
+                <MaterialCommunityIcons name="paw" size={140} color="rgba(0,0,0,0.04)" />
+              </View>
+            </TouchableOpacity>
             )}
           />
           <View style={styles.dotContainer}>
@@ -339,11 +385,11 @@ const styles = StyleSheet.create({
   avatarText: { color: "#8E8E93", fontWeight: "bold" },
   carouselWrapper: { marginBottom: 30 },
   heroCard: { width: width - 40, borderRadius: 35, padding: 25, height: 195, overflow: "hidden" },
-  heroTextContent: { zIndex: 2, flex: 1, justifyContent: "center" },
+  // heroTextContent: { zIndex: 2, flex: 1, justifyContent: "center" },
   newBadge: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 10, alignSelf: "flex-start", marginBottom: 12 },
   newBadgeText: { fontSize: 10, fontWeight: "800" },
   heroTitle: { fontSize: 24, fontWeight: "900", color: "#1C1C1E" },
-  heroSubText: { fontSize: 14, color: "#444", marginTop: 8, width: "75%", fontWeight: "500" },
+  heroSubText: { fontSize: 14, color: "#444", marginTop: 8, width: "65%", fontWeight: "500" },
   heroBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 15, marginTop: 18, alignSelf: "flex-start" },
   heroBtnText: { color: "#FFF", fontWeight: "800" },
   heroIconFloating: { position: "absolute", right: -25, bottom: -25 },
@@ -386,6 +432,27 @@ const styles = StyleSheet.create({
   askFidoBtn: { position: "absolute", bottom: 117, right: 20, alignItems: "center" },
   askFidoIconWrap: { width: 60, height: 60, borderRadius: 30, backgroundColor: "#FFFBE6", justifyContent: "center", alignItems: "center", elevation: 5 },
   askFidoText: { fontSize: 12, fontWeight: "700", color: "#AEAEB2", marginTop: 5 },
+//   heroImage: {
+//   position: "absolute",
+//   right: -30,
+//   bottom: 0,
+//   width: 180,
+//   height: 180,
+//   zIndex: 1, // Text එකට යටින් තියෙන්න ඕනේ නම් 1 දාන්න
+// },
+heroImage: {
+  position: "absolute",
+  right: -20,     // Card එකේ අයිනටම ගන්න (අගය අඩු කරන තරමට දකුණට යනවා)
+  bottom: -5,    // Card එකේ පල්ලෙහාටම ගන්න
+  width: 180,     // 180 තිබ්බ එක 220 හෝ 250 දක්වා වැඩි කරන්න
+  height: 180,    // width එකට සමානව තියන්න
+  zIndex: 1,
+},
+heroTextContent: {
+  zIndex: 2, // Text එක Image එකට උඩින් පේන්න
+  flex: 1,
+  justifyContent: "center",
+},
 });
 
 export default DashboardScreen;
