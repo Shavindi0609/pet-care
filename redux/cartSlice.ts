@@ -65,7 +65,9 @@ const cartSlice = createSlice({
     // Logout වෙද්දී Cart එක Clear කිරීමට
     clearCart: (state) => {
       state.cartItems = [];
-    }
+    },
+
+
   },
 });
 

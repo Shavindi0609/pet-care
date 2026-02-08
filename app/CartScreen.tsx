@@ -7,9 +7,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { incrementQty, decrementQty, removeFromCart } from "../redux/cartSlice";
 import React, { useState, useEffect } from "react";
-import { auth } from "../config/firebase"; // auth import කරන්න
+import { db, auth } from "../config/firebase"; // auth import කරන්න
 import { saveCartToFirestore } from "../services/cartService"; // save function එක ගන්න
 import { RootState } from "../store"; // RootState එක import කරගන්න
+import { clearCart } from "../redux/cartSlice";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const MAIN_ORANGE = "#FF8C00";
 
@@ -42,15 +44,48 @@ const CartScreen = ({ navigation }: any) => {
         return acc + (priceValue * item.quantity);
     }, 0);
 
-    const handleCheckout = () => {
+// 2. ප්‍රධාන Function එක: Confirm Order කරද්දී වැඩ කරන Logic එක
+  const handleCheckout = async () => {
+    // Validation: විස්තර පුරවලා නැත්නම් Error එකක් පෙන්වනවා
     if (!customerInfo.name || !customerInfo.address || !customerInfo.phone) {
-        Alert.alert("Error", "Please fill all the details to place the order.");
-        return;
+      Alert.alert("Error", "Please fill all the details to place the order.");
+      return;
     }
-    // මෙතනදී ඔයාට Order එක Firebase එකට save කරන logic එක ලියන්න පුළුවන්
-    Alert.alert("Success", "Order placed successfully!");
-    setOrderModalVisible(false);
-};
+
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert("Error", "Please login to place an order.");
+      return;
+    }
+
+    try {
+      // Step A: Firestore එකේ 'orders' collection එකට දත්ත යැවීම
+      await addDoc(collection(db, "orders"), {
+        userId: user.uid,
+        customerName: customerInfo.name,
+        customerPhone: customerInfo.phone,
+        deliveryAddress: customerInfo.address,
+        items: cartItems,          // මෙතන තමයි ඔක්කොම බඩු ලිස්ට් එක යන්නේ
+        totalAmount: totalPrice.toFixed(2),
+        status: "Pending",         // Admin ට බලන්න ලේසි වෙන්න status එකක්
+        createdAt: serverTimestamp(), // Order එක දාපු වෙලාව
+      });
+
+      // Step B: Redux එකේ තියෙන Cart එක clear කිරීම
+      dispatch(clearCart());
+
+      // Step C: Success message එක දී Modal එක වසා දැමීම
+      Alert.alert(
+        "Order Placed! 🐾", 
+        "Thank you for your purchase. We will deliver your items soon!",
+        [{ text: "OK", onPress: () => setOrderModalVisible(false) }]
+      );
+
+    } catch (error) {
+      console.error("Firestore Order Error: ", error);
+      Alert.alert("Error", "Could not place order. Please try again.");
+    }
+  };
 
     const renderCartItem = ({ item }: any) => (
         <View style={styles.card}>
