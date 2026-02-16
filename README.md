@@ -1,50 +1,69 @@
-# Welcome to your Expo app 👋
+# 🐾 PetCare - Smart Pet Management System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**PetCare** is a comprehensive mobile application built with **React Native (Expo)** designed to help pet owners manage their pets' health, medical history, and daily care routines with ease. 
 
-## Get started
+The app features a modern, intuitive interface to track vet visits, vaccinations, and medications while ensuring data consistency through secure cloud synchronization.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 📌 Project Overview
+Caring for a pet requires meticulous tracking of medical records and schedules. **PetCare** simplifies this process by:
+* **Managing Multiple Pets:** Create detailed profiles for all your pets in one place.
+* **Tracking Medical History:** Log VET visits, vaccinations, and medication schedules.
+* **Automated Reminders:** Never miss a check-up with integrated push notifications.
+* **Data Persistence:** Seamlessly access your data even after app restarts using local storage persistence.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## ✨ Key Features
 
-In the output, you'll find options to open the app in a
+🌱 **Pet Profile Management**
+* Add, edit, and delete pet profiles with custom images.
+* View comprehensive history for each individual pet.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+🏥 **Medical Records Tracking**
+* Categorized logs for **VET Visits**, **Vaccines**, and **Medicine**.
+* Automatic status tracking (e.g., "Completed").
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+⏰ **Smart Reminders & Notifications**
+* Schedule reminders for upcoming medical tasks directly within the app.
+* Permission-based push notification system for Android.
 
-## Get a fresh project
+👤 **User Authentication & Security**
+* Secure Login/Register via **Firebase Authentication**.
+* **Auth Persistence:** Stays logged in even after closing the app using `AsyncStorage`.
 
-When you're ready, run:
+🎨 **Modern & Responsive UI**
+* Nature-inspired color palette with high-fidelity icons.
+* Smooth transitions and tab-based navigation for a clean user experience.
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🛠️ Technologies Used
 
-## Learn more
+* **Frontend:** React Native (Expo SDK 54)
+* **Language:** TypeScript for type safety
+* **Backend:** Firebase Firestore (Real-time Database)
+* **Authentication:** Firebase Auth with AsyncStorage Persistence
+* **Navigation:** Expo Router (File-based routing)
+* **Styling:** NativeWind (Tailwind CSS for React Native)
+* **Icons:** Expo Vector Icons (MaterialCommunityIcons)
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📁 Folder Structure
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```text
+ pet-care/
+ ├── app/                   # Expo Router screens & layouts
+ │   ├── (auth)/            # Login & Registration flow
+ │   ├── (tabs)/            # Main Dashboard & Navigation
+ │   └── PetMedicalRecords/ # Medical history logic
+ ├── assets/                # Images, splash screens, and icons
+ ├── components/            # Reusable UI components
+ ├── config/                # Firebase & Global configurations
+ ├── services/              # API calls & Notification logic
+ ├── constants/             # Theme colors and static values
+ ├── app.json               # Expo & Plugin configuration
+ ├── tsconfig.json          # TypeScript path mappings
+ └── package.json           # Project dependencies
